@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const userSchema = require("../models/user");
+const fetchCodeforcesEvents = require("./codeforcesfetcher");
 
 
 async function handleUserSignup(req, res) {
@@ -19,6 +20,7 @@ async function handleUserSignup(req, res) {
 
 }
 async function handleUserSignin(req, res) {
+    
     console.log("Signin request received");
     const { email, password } = req.body;
     const user = await User.matchPassword(email, password);
@@ -38,8 +40,11 @@ async function handleUserSignin(req, res) {
             sameSite: "lax",     // "none" if frontend & backend are on different domains
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
+       const name=user.name;
+       const profileImageURL=user.profileImageURL;
 
-        res.status(200).json({ message: "Login successful", token });
+
+        res.status(200).json({ message: "Login successful", token,name,profileImageURL,email });
         console.log(`User signed in: ${email}`);
 
     } catch (error) {
@@ -65,7 +70,7 @@ async function handleUserSignin(req, res) {
         const Payload = jwt.verify(token, process.env.SECRET);
         return Payload;
     } catch (error) {
-        console.error(`Token validation error: ${error.message}`);
+       
         return null;
     }
 }

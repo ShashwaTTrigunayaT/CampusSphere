@@ -1,68 +1,103 @@
-const mongoose=require("mongoose");
-const eventSchema=new mongoose.Schema({
-    title:{
-        type:String,
+const mongoose = require("mongoose");
+const eventSchema = new mongoose.Schema({
+    externalId: {
+        type:Number,
         required:true,
+        unique:true,
     },
-    description:{
-        type:String,
-        required:true,
+    title: {
+        type: String,
+        required: true,
     },
-    type:{
-        type:String,
-        required:true,
+    
+
+    description: {
+        type: String,
+        required: true,
+        default: "No Description",
+    },
+    type: {
+        type: String,
+        required: true,
         enum: ['Hackathon', 'Coding Competition', 'Internship', "Fest"],
 
     },
-    link:{
-        type:String,
-        required:true,
+    link: {
+        type: String,
+        required: true,
 
     },
-    eventDate:{
-        type:Date,
-        required:true,
+    eventDate: {
+        type: Date,
+        required: true,
     },
-     
+
     tags: {
-     type: [String],
-     default: []
-     },
+        type: [String],
+        default: []
+    },
 
-    college:{
-        type:String,
-        
+    college: {
+        type: String,
+
 
     },
-    teamSize:{
-        type:String,
-        
+    bannerURL: { type: String },
+    status: {
+        type: String,
+        enum: ["Upcoming", "Ongoing", "Expired"],
+        default: "Upcoming"
+    }
+    ,
+    teamSize: {
+        min: { type: Number },
+        max: { type: Number }
+    },
+
+    registrationDeadline:
+    {
+        type  : Date
+    },
+    location: {
+        type: String,
+    },
+    stipend: {
+        type: String,
+
 
     },
-    stipend:{
-        type:String,
-        
+    duration: {
+        type: String,
+    },
+    prizes: {
+        type: String,
+
 
     },
-    prizes:{
-        type:String,
-        
+    platform: {
+        type: String,
+        required: true,
 
     },
-    platform:{
-        type:String,
-        required:true,
-
+    createdAt: {
+        type: Date,
+        default: Date.now,
     },
-    
-    createdBy:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User",
+    mode: {
+        type: String,
+        enum: ["Online", "Offline"],
+        required: true,
+        default: "Online"
+    },
+
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
     }
 
-    
 
-},{timestamps:true})
 
-const Event=mongoose.model("Event",eventSchema);
-module.exports=Event;
+}, { timestamps: true })
+
+const Event = mongoose.model("Event", eventSchema);
+module.exports = Event;

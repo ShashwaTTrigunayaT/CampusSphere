@@ -82,7 +82,7 @@ const Signup = () => {
                 </div>
 
                 <div className='flex justify-center items-center  '>
-                    <div className='  border-[3px] rounded-md border-[#1E3A8A] w-[65%] h-fit  mt-20 shadow-lg  flex' >
+                    <div className='  border-[4px] rounded-md border-[#1E3A8A] w-[65%] h-fit  mt-20 shadow-lg  flex' >
                         <div className="  w-[90%] bg-cover bg-center  "
                             style={{ backgroundImage: "url('/bg-box.png')" }}>
 

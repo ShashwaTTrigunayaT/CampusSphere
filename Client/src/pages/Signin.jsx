@@ -43,8 +43,11 @@ const Signin = () => {
                 
 
                 if(data.message==="Login successful"){
-                    const user=localStorage.setItem("data.token", data.token);
-
+                    localStorage.setItem("data.token", data.token);
+                    localStorage.setItem("data.name", data.name);
+                    localStorage.setItem("data.profileImageURL", data.profileImageURL);
+                    localStorage.setItem("data.email", data.email);
+                    
                     navigate("/");
                 }
                 else if(data.error){
@@ -87,14 +90,13 @@ const Signin = () => {
                 </div>
 
                 <div className='flex justify-center items-center  '>
-                    <div className='  border-[3px] rounded-md border-[#1E3A8A] w-[65%] h-fit  mt-20 shadow-lg  flex' >
+                    <div className='  border-[4px] rounded-md border-[#1E3A8A] w-[65%] h-fit  mt-20 shadow-lg  flex' >
                         <div className="  w-[90%] bg-cover bg-center  "
                             style={{ backgroundImage: "url('/bg-box.png')" }}>
 
                         </div>
 
                         <form onSubmit={handleUserSignin}  >
-
                             <div className='bg-[#F6F1E7]  border-2 border-l-[#e6c08b]  p-8 '>
                                 <h1 className='mb-5 font-semibold font-serif text-[#1E3A8A] text-2xl text-center '>Access  <br />Account</h1>
                                 

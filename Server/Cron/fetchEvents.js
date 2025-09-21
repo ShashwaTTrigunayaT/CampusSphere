@@ -1,0 +1,28 @@
+const cron=require("node-cron");
+const fetchCodeforcesEvents = require("../service/codeforcesfetcher");
+const fetchCodeChefEvents = require("../service/codecheffetcher");
+const fetchAtCoderEvents = require("../service/atcoderFetcher");
+const fetchHackerRankEvents=require("../service/hackerrankFetcher");
+const fetchLeetcodeEvents=require("../service/leetcodefetcher");
+const deleteOldEvents = require("../service/eventsManager");
+
+cron.schedule("0 * * * *", async () => { // every hour
+
+  console.log("Fetching Codeforces events...");
+  
+   try {
+    
+    await fetchCodeforcesEvents();
+    await fetchCodeChefEvents();
+    await fetchAtCoderEvents();
+    await fetchHackerRankEvents();
+    await fetchLeetcodeEvents();
+    await deleteOldEvents();
+    console.log(` Events fetched successfully at ${new Date()}`);
+    console.log("Old events deleted successfully.");
+   } catch (error) {
+    console.log(" Error fetching events:", error);
+    
+   }
+  
+});

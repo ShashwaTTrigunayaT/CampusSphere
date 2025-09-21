@@ -3,6 +3,9 @@ const mongoose=require("mongoose");
 const cors = require("cors");
 const userRoute=require("./router/userRoute")
 const cookieParser=require("cookie-parser");
+const fetchCodeforcesEvents=require("./service/codeforcesfetcher");
+const eventRoute=require("./router/eventRoute");
+
 
 
 
@@ -10,6 +13,8 @@ const path=require("path");
 
 const { checkForAuth } = require("./middleware/auth");
 require('dotenv').config();
+require("./Cron/fetchEvents");
+
 const app=express();
 
 app.use(cors({
@@ -21,8 +26,11 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use (checkForAuth("token"));
-app.use("/user",userRoute)
+app.use("/user",userRoute);
+app.use("/event",eventRoute);
+
 const Port=process.env.PORT||8000;
+
 mongoose.connect(process.env.MONGO_URL).then(console.log(`MongoDB Connected to Server at Port:${Port}`))
 
 
