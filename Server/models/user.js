@@ -1,10 +1,23 @@
 const mongoose=require("mongoose");
 const{createHmac,randomBytes}=require("crypto");
-const { createUserToken } = require("../service/auth");
+
 const userSchema=new mongoose.Schema({
     name:{
         type:String,
         required:true,
+    },
+    username:{
+        type:String,
+       default:"NO-USERNAME",
+       unique:true,
+       sparse:true,
+        
+        
+    },
+    institution:{
+        type:String,
+       
+        
     },
     email:{
         type:String,
@@ -20,10 +33,7 @@ const userSchema=new mongoose.Schema({
         
         required:true,
     },
-    college:{
-        type:String,
-        
-    },
+    
     salt:{
         type:String,
 
@@ -33,11 +43,31 @@ const userSchema=new mongoose.Schema({
         type:String,
         default:"/default-Avatar.png"
     },
+    githubURL:{
+        type:String,
+        
+    },
+    linkedinURL:{
+        type:String,
+        
+    },
+    aboutSelf:{
+        type:String,
+        maxLength:500,
+    },
     role:{
         type:String,
         enum:["user","admin"],
         default:"user",
-    }
+    },
+    bookmarks:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Event"
+    }],
+    alerts:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Event"
+    }]
 
 },{timestamps:true})
 userSchema.pre("save",function(next){

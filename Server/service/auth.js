@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-const userSchema = require("../models/user");
+
 const fetchCodeforcesEvents = require("./codeforcesfetcher");
 
 
@@ -12,7 +12,7 @@ async function handleUserSignup(req, res) {
         name,
         email,
         password,
-        college,
+        
     })
     return res.status(201).json({
         message: "User Created Successfully"
@@ -42,10 +42,18 @@ async function handleUserSignin(req, res) {
         });
        const name=user.name;
        const profileImageURL=user.profileImageURL;
+       const username=user.username;
+       const institution=user.institution;
+       const alert=user.alerts;
+       const bookmark=user.bookmarks;
+       const eventData={alerts:alert,bookmarks:bookmark};
+       const aboutSelf=user.aboutSelf;
+       const githubURL=user.githubURL;
+       const linkedinURL=user.linkedinURL;
 
 
-        res.status(200).json({ message: "Login successful", token,name,profileImageURL,email });
-        console.log(`User signed in: ${email}`);
+            res.status(200).json({ message: "Login successful", token,name,profileImageURL,email,username,institution ,eventData,aboutSelf,githubURL,linkedinURL });
+        
 
     } catch (error) {
         return res.status(401).json({ error: 'Unauthorized' });

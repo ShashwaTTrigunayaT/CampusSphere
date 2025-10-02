@@ -83,6 +83,7 @@ const eventSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    
     mode: {
         type: String,
         enum: ["Online", "Offline"],
@@ -94,6 +95,7 @@ const eventSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
     }
+
 
 
 

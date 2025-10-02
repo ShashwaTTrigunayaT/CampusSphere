@@ -31,7 +31,11 @@ app.use("/event",eventRoute);
 
 const Port=process.env.PORT||8000;
 
-mongoose.connect(process.env.MONGO_URL).then(console.log(`MongoDB Connected to Server at Port:${Port}`))
+mongoose.connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => console.log("MongoDB connected"))
+  .catch(err => console.error("MongoDB connection error:", err));
 
 
 
