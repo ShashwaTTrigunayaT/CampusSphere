@@ -1,7 +1,18 @@
-import React from "react";
-import { Calendar, Clock, Globe, ClipboardList, CheckCircle, XCircle, ArrowRight } from "lucide-react";
+import React, { act, useEffect, useState } from "react";
+import {
+  Calendar,
+  Clock,
+  Globe,
+  ClipboardList,
+  CheckCircle,
+  XCircle,
+  ArrowRight,
+  Bell,
+  Bookmark
+} from "lucide-react";
 
 const EventCard = ({
+  eventId,
   title,
   platform,
   eventDate,
@@ -21,9 +32,63 @@ const EventCard = ({
     HackerRank: "from-green-400 to-green-600",
     TopCoder: "from-blue-500 to-indigo-600",
   };
+  
+  const [active, setActive] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+  const [alerted, setAlerted] = useState(false);
+  
+  
+  const handleBookmark = (bookmarked) => {
+    fetch("http://localhost:5000/user/bookmarks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        eventId: eventId,
+        userId: localStorage.getItem("data.email"),
+       
+      }),
+    });
+  };
+
+  const handleAlert = (alerted) => {
+    fetch("http://localhost:5000/user/alerts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        eventId: eventId,
+        userId: localStorage.getItem("data.email"),
+        
+      }),
+    }).then((res) => res.json())
+    .then((data) => {
+      alert(data.message);
+    })
+    .catch((error) => {
+      throw new Error("Error in setting alert: " + error.message)
+    });
+  };
+  
+
+  // State for Bookmark and Alerts
+  
+  
+  useEffect(() => {
+    if(localStorage.getItem("data.token")){
+    setActive(true);
+    }
+    else{
+      setActive(false);
+    }
+  }, []);
+  
 
   return (
     <div className="w-80 bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 p-6 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+      
       {/* Platform Badge */}
       <div
         className={`inline-block px-4 py-1 text-xs font-bold text-white rounded-full bg-gradient-to-r ${
@@ -36,8 +101,8 @@ const EventCard = ({
       {/* Title */}
       <div className="h-24">
         <h2 className="text-xl font-bold text-gray-800 mt-4 mb-2 hover:text-indigo-600 transition-colors">
-        {title}
-      </h2>
+          {title}
+        </h2>
       </div>
 
       {/* Description */}
@@ -71,6 +136,33 @@ const EventCard = ({
           <Clock size={16} /> Deadline: {registrationDeadline}
         </p>
       </div>
+
+      {/* Alert & Bookmark Icons */}
+      {active && (
+        <div className="mt-4 flex gap-4 justify-end">
+        <button
+          onClick={() => {setAlerted(!alerted);
+            if(alerted===false)handleAlert();}}
+          className={`p-2 rounded-full transition ${
+            alerted ? "bg-yellow-200" : "bg-gray-100 hover:bg-gray-200"
+          }`}
+        >
+          <Bell size={20} className={alerted ? "text-yellow-600" : "text-gray-600"} />
+        </button>
+
+        <button
+          onClick={() => {setBookmarked(!bookmarked);
+            if(bookmarked===false)handleBookmark();}}
+          className={`p-2 rounded-full transition ${
+            bookmarked ? "bg-indigo-200" : "bg-gray-100 hover:bg-gray-200"
+          }`}
+        >
+          <Bookmark size={20} className={bookmarked ? "text-indigo-600" : "text-gray-600"} />
+        </button>
+      </div>
+      )
+
+      }
 
       {/* CTA Button */}
       <a

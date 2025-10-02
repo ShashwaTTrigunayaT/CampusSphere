@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Card from '../components/Card';
 import { useNavigate } from 'react-router-dom';
+import { nav } from 'framer-motion/client';
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -19,13 +20,13 @@ const Signup = () => {
             }, 1500);
         }
     }
-    const handleUserSignup = (event) => {
+    const handleUserSignup = async (event) => {
         event.preventDefault();
         if (!name || !password || !email) {
             setError("All Fields are Required!!!");
             return;
         }
-        fetch('http://localhost:5000/user/signup', {
+         fetch('http://localhost:5000/user/signup', {
             method: "POST",
             headers: {
                 "content-type": "application/json"
@@ -35,21 +36,23 @@ const Signup = () => {
                 email,
                 password
             })
-        })
-            .then((res) => res.json())
+        }).then((res) => res.json())
             .then((data) => {
-                setSuccess(true);
-                navigate("/signin");
-
-                setTimeout(() => {
-                    setSuccess(false);
-
-                }, 1500);
+                if (data.message === "User created successfully") {
+                    setSuccess(true);
+                    setTimeout(() => {
+                        navigate("/signin");
+                    }, 1500);
+                    
+                }
+                else {
+                    setError(data.message);
+                }
             })
-            .catch((error) => { throw new Error("Error in signup: " + error.message) })
-
-
-
+            .catch((error) => {
+                throw new Error("Error in signup: " + error.message);
+                
+            });
 
 
     }

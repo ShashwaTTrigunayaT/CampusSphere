@@ -1,24 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Card from '../components/Card';
 import { useNavigate } from 'react-router-dom';
+import { stringify } from 'postcss';
 
 const Signin = () => {
-    const navigate=useNavigate();
-    
+    const navigate = useNavigate();
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
-    const handleError = (error) => {
+    useEffect(() => {
         if (error) {
-            setTimeout(() => {
-                setError("");
-
-            }, 1500);
+            const timer = setTimeout(() => setError(""), 1500);
+            return () => clearTimeout(timer); // cleanup on unmount or error change
         }
-    }
+    }, [error]);
     const handleUserSignin = (event) => {
         event.preventDefault();
         if (!password || !email) {
@@ -31,7 +30,7 @@ const Signin = () => {
                 "content-type": "application/json"
             },
             body: JSON.stringify({
-               
+
                 email,
                 password
             }),
@@ -39,18 +38,26 @@ const Signin = () => {
         })
             .then((res) => res.json())
             .then((data) => {
-                
-                
 
-                if(data.message==="Login successful"){
+
+
+                if (data.message === "Login successful") {
                     localStorage.setItem("data.token", data.token);
                     localStorage.setItem("data.name", data.name);
                     localStorage.setItem("data.profileImageURL", data.profileImageURL);
                     localStorage.setItem("data.email", data.email);
+                    localStorage.setItem("data.username", data.username);
+                    localStorage.setItem("data.institution", data.institution);
+                    localStorage.setItem("data.aboutMe", data.aboutSelf || "");
+                    localStorage.setItem("data.github", data.githubURL || "");
+                    localStorage.setItem("data.linkedin", data.linkedinURL || "");
+
                     
+
+                    localStorage.setItem("data.eventData", JSON.stringify(data.eventData || {}));
                     navigate("/");
                 }
-                else if(data.error){
+                else if (data.error) {
                     setError(data.error);
                 }
             })
@@ -63,63 +70,63 @@ const Signin = () => {
     }
 
     return (
-        
-            
-            <main className='flex-grow'>
-                <div >
-                    {error && (
-                        <div className='bg-[#e3b672] border-2 text-center font-serif text-base text-gray-700'>
-
-                            {error}
-                            {handleError(error)}
 
 
+        <main className='flex-grow'>
+            <div >
+                {error && (
+                    <div className='bg-[#e3b672] border-2 text-center font-serif text-base text-gray-700'>
 
-                        </div>)}
-                </div>
-
-                <div>
-                    {success && (
-                        <div className='bg-[#e3b672] border-2 text-center font-serif text-base text-gray-700'>
-
-                            User Created Successfully!!!
+                        {error}
 
 
-                        </div>
-                    )}
-                </div>
 
-                <div className='flex justify-center items-center  '>
-                    <div className='  border-[4px] rounded-md border-[#1E3A8A] w-[65%] h-fit  mt-20 shadow-lg  flex' >
-                        <div className="  w-[90%] bg-cover bg-center  "
-                            style={{ backgroundImage: "url('/bg-box.png')" }}>
 
-                        </div>
+                    </div>)}
+            </div>
 
-                        <form onSubmit={handleUserSignin}  >
-                            <div className='bg-[#F6F1E7]  border-2 border-l-[#e6c08b]  p-8 '>
-                                <h1 className='mb-5 font-semibold font-serif text-[#1E3A8A] text-2xl text-center '>Access  <br />Account</h1>
-                                
-                                <div>
+            <div>
+                {success && (
+                    <div className='bg-[#e3b672] border-2 text-center font-serif text-base text-gray-700'>
 
-                                    <input className='border-[#e3b672] rounded-md border-2 m-2 px-2 py-1 focus:outline-none focus:border-[#1E3A8A]' placeholder='Email' value={email} onChange={(e) => setEmail(e.target.value)} type="text" />
-                                </div>
-                                <div>
+                        User Created Successfully!!!
 
-                                    <input className='border-[#e3b672] rounded-md border-2 m-2 px-2 py-1 focus:outline-none focus:border-[#1E3A8A]' placeholder='Password' value={password} onChange={(e) => setPassword(e.target.value)} type="text" />
-                                </div>
-                                <div className='flex justify-center'>
-                                    <button className="bg-[#edc894]  hover:bg-[#e6c08b] mt-2 text-white font-bold py-2 px-4 border-2 border-[#e3b672] rounded active:rounded-md" type="submit" button>Access Account</button>
-                                </div>
-                            </div>
-
-                        </form >
 
                     </div>
-                </div>
-            </main>
+                )}
+            </div>
 
-        
+            <div className='flex justify-center items-center  '>
+                <div className='  border-[4px] rounded-md border-[#1E3A8A] w-[65%] h-fit  mt-20 shadow-lg  flex' >
+                    <div className="  w-[90%] bg-cover bg-center  "
+                        style={{ backgroundImage: "url('/bg-box.png')" }}>
+
+                    </div>
+
+                    <form onSubmit={handleUserSignin}  >
+                        <div className='bg-[#F6F1E7]  border-2 border-l-[#e6c08b]  p-8 '>
+                            <h1 className='mb-5 font-semibold font-serif text-[#1E3A8A] text-2xl text-center '>Access  <br />Account</h1>
+
+                            <div>
+
+                                <input className='border-[#e3b672] rounded-md border-2 m-2 px-2 py-1 focus:outline-none focus:border-[#1E3A8A]' placeholder='Email' value={email} onChange={(e) => setEmail(e.target.value)} type="text" />
+                            </div>
+                            <div>
+
+                                <input className='border-[#e3b672] rounded-md border-2 m-2 px-2 py-1 focus:outline-none focus:border-[#1E3A8A]' placeholder='Password' value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
+                            </div>
+                            <div className='flex justify-center'>
+                                <button className="bg-[#edc894]  hover:bg-[#e6c08b] mt-2 text-white font-bold py-2 px-4 border-2 border-[#e3b672] rounded active:rounded-md" type="submit" button>Access Account</button>
+                            </div>
+                        </div>
+
+                    </form >
+
+                </div>
+            </div>
+        </main>
+
+
 
     )
 }

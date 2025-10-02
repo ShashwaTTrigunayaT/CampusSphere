@@ -8,7 +8,9 @@ import { data } from 'react-router-dom'
 const Events = () => {
     const [events, setEvents] = React.useState([]);
     const [type, setType] = React.useState('');
+    const [eventsNotification, setEventsNotification] = React.useState('');
     useEffect(() => {
+        
 
         async function fetchEvents() {
 
@@ -17,20 +19,21 @@ const Events = () => {
             const data = await res.json()
             
             setEvents(data);
-            console.log(data);
-
+            
         }
 
         fetchEvents();
 
     }, [type]);
+
+   
     return (
         <div className='flex flex-wrap gap-4 justify-center my-5'>
 
-            
-                {events.map((event) => (
+            {events.map((event) => (
                 <EventCard
           key={event._id}
+          eventId={event._id}
           title={event.title}
           platform={event.platform}
           eventDate={event.eventDate}
@@ -52,3 +55,4 @@ const Events = () => {
 }
 
 export default Events
+
