@@ -104,7 +104,7 @@ const Signin = () => {
                     </div>
 
                     <form onSubmit={handleUserSignin}  >
-                        <div className='bg-[#F6F1E7]  border-2 border-l-[#e6c08b]  p-8 '>
+                        <div className='bg-[#F6F1E7]  border-2 border-l-[#e6c08b]  p-7 '>
                             <h1 className='mb-5 font-semibold font-serif text-[#1E3A8A] text-2xl text-center '>Access  <br />Account</h1>
 
                             <div>
