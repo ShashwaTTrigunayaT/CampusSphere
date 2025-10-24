@@ -5,6 +5,7 @@ const fetchAtCoderEvents = require("../service/atcoderFetcher");
 const fetchHackerRankEvents=require("../service/hackerrankFetcher");
 const fetchLeetcodeEvents=require("../service/leetcodefetcher");
 const deleteOldEvents = require("../service/eventsManager");
+const {sendEmailAlerts} = require("../service/alerts")
 
 cron.schedule("0 * * * *", async () => { // every hour
 
@@ -26,3 +27,12 @@ cron.schedule("0 * * * *", async () => { // every hour
    }
   
 });
+cron.schedule("*/30 * * * *",async ()=>{
+  try {
+    console.log("Sending email alerts to users...");
+    await sendEmailAlerts();
+    
+  } catch (error) {
+    console.log("Error sending email alerts:", error);
+  }
+})

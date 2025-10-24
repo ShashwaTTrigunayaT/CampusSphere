@@ -19,9 +19,12 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mailgun-js": "^0.22.0",
     "mongoose": "^8.17.0",
     "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.10",
     "nodemon": "^3.1.10",
+    "sib-api-v3-sdk": "^8.5.0",
     "util": "^0.12.5",
     "xml2js": "^0.6.2"
   }

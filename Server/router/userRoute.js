@@ -5,6 +5,9 @@ const EVENT = require("../models/event");
 const { handleUserSignin, handleUserSignup } = require("../service/auth");
 const { handleBookmarks } = require("../service/handleBookmarksandAlerts");
 const { handleAlerts } = require("../service/handleBookmarksandAlerts");
+const { updatebookmarksandalerts } = require("../service/handleBookmarksandAlerts");
+const { showBookmarks } = require("../service/bookmarks");
+const  {showalerts}  = require("../service/alerts");
 
 const router = express.Router();
 router.post("/signin", handleUserSignin);
@@ -67,21 +70,27 @@ router.post("/update-credentials", async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 });
-router.get("/update-profile", async (req, res) => {
+router.get("/update-profile/:email", async (req, res) => {
     console.log("Update profile request received");
-    const { email } = req.body;
+    const { email } = req.params;
+    
     try {
         const user = await USER.findOne({ email });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-        console.log({username: user.username, institution: user.institution, aboutSelf: user.aboutSelf, githubURL: user.githubURL, linkedinURL: user.linkedinURL, alert: user.alerts.length, bookmark: user.bookmarks.length});
-        return res.status(200).json({ username: user.username, institution: user.institution, aboutSelf: user.aboutSelf, githubURL: user.githubURL, linkedinURL: user.linkedinURL, alert: user.alerts.length, bookmark: user.bookmarks.length });
+        
+        return res.status(200).json({ success:true,
+            data: {username: user.username, institution: user.institution, aboutSelf: user.aboutSelf, githubURL: user.githubURL, linkedinURL: user.linkedinURL,eventData:{alerts: user.alerts, bookmarks: user.bookmarks}} });
         
     } catch (error) {
         console.error("Update error:", error);
         return res.status(500).json({ message: "Internal Server Error" });
     }
 });
+router.post("/updatebookmarksandalerts", updatebookmarksandalerts);
+router.get("/showBookmarks/:userId",showBookmarks);
+router.get("/showAlerts/:userId",showalerts);
+
 
 module.exports = router;

@@ -78,6 +78,45 @@ const handleAlerts = async (req, res) => {
         else{
             return res.status(500).json({message:"Internal server error"}); 
         }
+    }    
+}   
+async function updatebookmarksandalerts (req,res){ {
+    try {
+        console.log("Update bookmarks and alerts request received");
+
+        const {userId} = req.body;
+        console.log("User ID:", userId);
+        const email=userId;
+       
+        const user = await USER.findOne({email:email});
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+         
+        const bookmarks=user.bookmarks;
+        const alerts=user.alerts;
+        for(let i=0;i<bookmarks.length;i++){
+
+            const event = await EVENT.findOne({ _id: bookmarks[i] });
+           if(!event){
+            // If the event no longer exists, remove it from bookmarks
+            user.bookmarks.pull(bookmarks[i]);
+           }
+        }
+        for(let i=0;i<alerts.length;i++){
+            const event = await EVENT.findOne({ _id: alerts[i] });
+            if (!event) {
+                // If the event no longer exists, remove it from alerts
+                user.alerts.pull(alerts[i]);
+            }
+        }
+        await user.save();
+        return res.status(200).json({message:"Bookmarks and alerts updated successfully"});
+    } catch (error) {
+        console.error("Error updating bookmarks and alerts:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
+    
 }
-module.exports={handleBookmarks,handleAlerts};
+}
+module.exports={handleBookmarks,handleAlerts,updatebookmarksandalerts};
