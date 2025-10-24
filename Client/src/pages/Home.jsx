@@ -126,17 +126,15 @@ const Home = () => {
   return (
     <main className="min-h-screen relative bg-gradient-to-b from-gray-900 via-black to-gray-900 scroll-smooth ">
       {/* Hero Section */}
-      <section className="min-h-screen flex flex-col items-center mt-12  text-center px-6 relative z-10">
-        <img src="/logo.png" className="h-24 md:h-36 mx-auto animate-bounce" alt="CampusSphere Logo" />
+      <section className="min-h-screen flex flex-col items-center   text-center px-6 relative  mb-5 border-4 border-[#1E3A8A]" style={{ backgroundImage: "url('/dashboard-BG.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}>
+        <img src="/logo.png" className="h-24 md:h-36 mx-auto animate-bounce mt-24" alt="CampusSphere Logo" />
         <h1 className="text-5xl md:text-6xl font-extrabold text-[#1E3A8A] drop-shadow-[0_0_20px_#1E3A8A] ">
           Connect. Compete. <br /> Create.
         </h1>
         <div className="flex flex-col items-center text-center px-6 mt-28 max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#1E3A8A] to-indigo-500 drop-shadow-lg mb-4">
-            Welcome to CampusSphere
-          </h2>
-          <p className="text-[#e3b672] text-2xl md:text-xl leading-relaxed max-w-3xl font-serif">
-            Your one-stop platform for everything campus-related. Participate in hackathons, explore internships, and connect with peers across campuses. <span className="text-[#1E3A8A] font-semibold">Level up your skills and shine!</span>
+          
+          <p className="text-[#e3b672] text-3xl font-semibold md:text-xl leading-relaxed max-w-3xl font-serif">
+            Your one-stop platform for everything campus-related. Participate in hackathons, explore internships, and connect with peers across campuses. <span className="text-[#1E3A8A] font-semibold"><br />Level up your skills and shine!</span>
           </p>
         </div>
 

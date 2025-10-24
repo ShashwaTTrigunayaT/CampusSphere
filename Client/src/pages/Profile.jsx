@@ -1,40 +1,52 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Github, Linkedin, Bell, Bookmark, Calendar, Briefcase, Edit3, LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { body } from "framer-motion/client";
+import { data, useNavigate } from "react-router-dom";
+import { body, nav } from "framer-motion/client";
 
 const Profile = () => {
   const navigate = useNavigate();
   const [edit, setEdit] = useState(false);
   useEffect(() => {
+    fetch("http://localhost:5000/user/updatebookmarksandalerts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: localStorage.getItem("data.email"),
+      }),
+    });
+  }, []);
+  useEffect(() => {
     if (localStorage.getItem("data.token")) {
-      fetch(`http://localhost:5000/user/update-profile`, {
-        
-        method: 'POST',
+      fetch(`http://localhost:5000/user/update-profile/${localStorage.getItem("data.email")}`, {
+
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem("data.token")}`,
 
         },
-        body: JSON.stringify({
-          email: localStorage.getItem("data.email"),
-          
-        }),
+
       })
-        .then((response) => response.json())
+        .then((res) => res.json())
         .then((data) => {
           if (data.success) {
             console.log("User data fetched successfully:", data);
-            return;
+
             // Update localStorage with the fetched data
-            localStorage.setItem("data.username", data.username);
-            localStorage.setItem("data.email", data.email);
-            localStorage.setItem("data.institution", data.institution);
-            localStorage.setItem("data.profileImageURL", data.profileImageURL);
-            localStorage.setItem("data.aboutMe", data.aboutMe);
-            localStorage.setItem("data.github", data.github);
-            localStorage.setItem("data.linkedin", data.linkedin);
+            localStorage.setItem("data.username", username);
+
+
+            localStorage.setItem("data.institution", institution);
+
+            localStorage.setItem("data.aboutMe", aboutMe);
+            localStorage.setItem("data.github", githubLink);
+            localStorage.setItem("data.linkedin", linkedinLink);
+            localStorage.setItem("data.eventData", JSON.stringify(eventData));
+
+            console.log("Event Data:", eventData);
           } else {
             console.error("Failed to fetch user data:", data.message);
           }
@@ -51,9 +63,17 @@ const Profile = () => {
   const [email] = useState(localStorage.getItem("data.email") || "Unknown Email");
   const [institution, setInstitution] = useState(localStorage.getItem("data.institution") || "Unknown Institution");
   const [profileImageURL] = useState(localStorage.getItem("data.profileImageURL") || "/default-profile.png");
+
   const eventData = JSON.parse(localStorage.getItem("data.eventData") || "{}");
 
-  // NEW STATES
+  
+  const [alerts, setAlerts] = useState(eventData.alerts || []);
+  const [bookmarks, setBookmarks] = useState(eventData.bookmarks || []);
+
+  
+ console.log("Alerts:", alerts);
+  console.log("Bookmarks:", bookmarks);
+  
   const [aboutMe, setAboutMe] = useState(
     localStorage.getItem("data.aboutMe") || "Write something about yourself..."
   );
@@ -66,40 +86,40 @@ const Profile = () => {
   };
 
   const saveChanges = async () => {
-  try {
-    const res = await fetch("http://localhost:5000/user/update-credentials", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("data.token")}`, // optional if you use token auth
-      },
-      body: JSON.stringify({
-        email: localStorage.getItem("data.email"), // required
-        username,       // optional
-        institution,    // optional
-        aboutMe,        // optional (from editable About Me field)
-        githubLink,     // optional (from editable social field)
-        linkedinLink,   // optional (from editable social field)
-      }),
-    });
+    try {
+      const res = await fetch("http://localhost:5000/user/update-credentials", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("data.token")}`, // optional if you use token auth
+        },
+        body: JSON.stringify({
+          email: localStorage.getItem("data.email"), // required
+          username,       // optional
+          institution,    // optional
+          aboutMe,        // optional (from editable About Me field)
+          githubLink,     // optional (from editable social field)
+          linkedinLink,   // optional (from editable social field)
+        }),
+      });
 
-    const result = await res.json();
-    if (res.ok) {
-      // Update localStorage if backend update succeeds
-      localStorage.setItem("data.username", username);
-      localStorage.setItem("data.institution", institution);
-      localStorage.setItem("data.aboutMe", aboutMe);
-      localStorage.setItem("data.githubLink", githubLink);
-      localStorage.setItem("data.linkedinLink", linkedinLink);
-      setEdit(false);
-      console.log("Credentials updated successfully");
-    } else {
-      console.error("Backend update failed:", result.message);
+      const result = await res.json();
+      if (res.ok) {
+        // Update localStorage if backend update succeeds
+        localStorage.setItem("data.username", username);
+        localStorage.setItem("data.institution", institution);
+        localStorage.setItem("data.aboutMe", aboutMe);
+        localStorage.setItem("data.githubLink", githubLink);
+        localStorage.setItem("data.linkedinLink", linkedinLink);
+        setEdit(false);
+        console.log("Credentials updated successfully");
+      } else {
+        console.error("Backend update failed:", result.message);
+      }
+    } catch (err) {
+      console.error("Error updating credentials:", err);
     }
-  } catch (err) {
-    console.error("Error updating credentials:", err);
-  }
-};
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-indigo-50">
@@ -220,13 +240,14 @@ const Profile = () => {
           className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6 w-11/12 md:w-3/4 lg:w-2/3 mx-auto"
         >
           {[
-            { icon: <Bell className="w-6 h-6 text-yellow-500" />, label: "Alerts", value: eventData.alerts?.length || 0 },
-            { icon: <Bookmark className="w-6 h-6 text-indigo-600" />, label: "Bookmarks", value: eventData.bookmarks?.length || 0 },
-            { icon: <Calendar className="w-6 h-6 text-pink-500" />, label: "Upcoming", value: "3" },
+            { icon: <Bell className="w-6 h-6 text-yellow-500" />, label: "Alerts", value: alerts?.length || 0 , onClick: () => {navigate('/alerts');} },
+            { icon: <Bookmark className="w-6 h-6 text-indigo-600" />, label: "Bookmarks", value: bookmarks?.length || 0 , onClick: () => {navigate('/bookmarks');} },
+            { icon: <Calendar className="w-6 h-6 text-pink-500" />, label: "Upcoming", value: "3", onClick: () => {navigate('/upcoming');} },
           ].map((stat, idx) => (
             <div
               key={idx}
               className="bg-white/70 backdrop-blur-md p-6 rounded-2xl flex items-center gap-4 shadow hover:shadow-xl transition"
+              onClick={stat.onClick}
             >
               {stat.icon}
               <div>
@@ -269,7 +290,7 @@ const Profile = () => {
               <p className="text-gray-600 leading-relaxed">{aboutMe}</p>
             )}
 
-            
+
           </div>
         </motion.div>
       </main>

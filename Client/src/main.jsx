@@ -3,15 +3,17 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { Route,BrowserRouter,createBrowserRouter,createRoutesFromElements,RouterProvider} from 'react-router-dom'
-import Signup from './pages/signup.jsx'
-import Signin from './pages/signin.jsx'
+import Signup from './pages/Signup.jsx'
+import Signin from './pages/Signin.jsx'
 import Home from './pages/Home.jsx'
 import Layout from './layout.jsx'
 import Events from './pages/Events.jsx'
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
-import Profile from './pages/profile.jsx'
+import Profile from './pages/Profile.jsx'
 import About from './pages/About.jsx'
+import Bookmarks from './pages/Bookmarks.jsx'
+import Alerts from './pages/Alerts.jsx'
 import Contacts from './pages/Contacts.jsx'
 import React from 'react'
 
@@ -25,6 +27,10 @@ const router = createBrowserRouter(
       <Route path='profile' element={<Profile />} />
       <Route path='About' element={<About />} />
       <Route path='Contacts' element={<Contacts />} />
+      
+      <Route path='Bookmarks' element={<Bookmarks />} />
+      <Route path='Alerts' element={<Alerts />} />
+      
       </Route>
   )
 )
