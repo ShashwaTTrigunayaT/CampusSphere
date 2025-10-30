@@ -22,7 +22,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 app.use(cors({
-    origin: ALLOWED_ORIGINS, // <-- Uses the array of allowed domains
+    origin: "http://localhost:5173", // <-- Uses the array of allowed domains
     credentials: true,
     // Add all necessary HTTP methods
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
