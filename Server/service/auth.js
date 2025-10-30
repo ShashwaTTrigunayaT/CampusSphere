@@ -25,17 +25,13 @@ async function handleUserSignup(req, res) {
       return res.status(409).json({ message: "User already exists with this email" });
     }
 
-    const salt = crypto.randomBytes(16).toString("hex");
-    const hashedPassword = crypto
-      .createHmac("sha256", salt)
-      .update(password)
-      .digest("hex");
+   
 
     await User.create({
       name,
       email,
-      password: hashedPassword,
-      salt: salt,
+      password,
+      
     });
 
     return res.status(201).json({
