@@ -1,7 +1,8 @@
 const Event = require("../models/event");
 const express = require("express");
+
 async function showAllEvents(req, res) {
-    console.log("Fetching all events...");
+    
     const eventType = req.params.type;
     
     try {
@@ -10,10 +11,12 @@ async function showAllEvents(req, res) {
         return res.json(events);
         
     } catch (error) {
+        
+        
+        console.error("Error in showAllEvents:", error);
+        
         return res.status(500).json({ error: 'Internal server error' });
     }
-
-
 }
 
 module.exports = {

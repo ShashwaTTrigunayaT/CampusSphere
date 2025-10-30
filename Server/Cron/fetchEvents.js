@@ -7,7 +7,7 @@ const fetchLeetcodeEvents=require("../service/leetcodefetcher");
 const deleteOldEvents = require("../service/eventsManager");
 const {sendEmailAlerts} = require("../service/alerts")
 
-cron.schedule("0 * * * *", async () => { // every hour
+cron.schedule("*/60 * * * *", async () => { 
 
   console.log("Fetching Codeforces events...");
   

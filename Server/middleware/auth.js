@@ -1,27 +1,57 @@
-const { validate } = require("../models/user");
-const { validateToken } = require("../service/auth");
+
+
+
+const { validateToken } = require("../service/auth"); 
+
+
+
 
 function checkForAuth(cookieName) {
-    console.log(`Checking for auth cookie: ${cookieName}`);
    return function(req, res, next) { 
-    const cookieTokenValue=req.cookies[cookieName];
+    const cookieTokenValue = req.cookies[cookieName];
     
     if (!cookieTokenValue) {
+      req.user = null; 
       return next();
     }
-    try {
-      const userPayload=validateToken(cookieTokenValue);
-      req.user=userPayload;
-      
-    } catch (error) {
-      return next();
-    }
+
+    
+    const userPayload = validateToken(cookieTokenValue);
+    
+    
+    
+    req.user = userPayload; 
+    
     return next();
   }
-  
-
-
 }
-module.exports={
-  checkForAuth,  
+
+
+
+
+function isLoggedIn(cookieName = "token") {
+  return function(req, res, next) {
+    const cookieTokenValue = req.cookies[cookieName];
+    
+    if (!cookieTokenValue) {
+      
+      return res.status(401).json({ message: "Access denied. No token provided." });
+    }
+
+    const userPayload = validateToken(cookieTokenValue);
+    
+    if (!userPayload) {
+      
+      return res.status(401).json({ message: "Access denied. Invalid token." });
+    }
+
+    
+    req.user = userPayload;
+    return next();
+  }
+}
+
+module.exports = {
+  checkForAuth,
+  isLoggedIn, 
 }

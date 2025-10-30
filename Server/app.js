@@ -22,8 +22,9 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.static(path.resolve("./public")))
-app.use(express.json());
+
 app.use(cookieParser());
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use (checkForAuth("token"));
 app.use("/user",userRoute);

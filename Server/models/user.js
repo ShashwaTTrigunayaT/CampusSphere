@@ -25,6 +25,16 @@ const userSchema=new mongoose.Schema({
         unique:true,
         lowercase:true,
     },
+    skills:{
+         type:String,
+         default:"Mention your skills.."
+      
+    },
+    projects:{
+       type:String,
+       default:"Write down about your projects.."
+    },
+
     password:{
         type:String,
         
