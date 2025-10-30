@@ -33,6 +33,11 @@ app.use(express.static(path.resolve("./public")))
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+    // Log 1: The first point where the request hits your Express app
+    console.log(`[REQUEST RECEIVED] Method: ${req.method}, Path: ${req.path}, Time: ${new Date().toISOString()}`);
+    next();
+});
 app.set('trust proxy', 1);
 app.use(checkForAuth("token"));
 app.use("/user",userRoute);
