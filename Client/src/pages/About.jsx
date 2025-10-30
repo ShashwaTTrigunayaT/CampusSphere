@@ -37,11 +37,11 @@ const About = () => {
           },
           {
             title: "Features",
-            desc: "Event discovery, filters, alerts, and bookmarks (coming soon!) — everything designed to keep you ahead.",
+            desc: "Event discovery, filters, alerts, and bookmarks  — everything designed to keep you ahead.",
           },
           {
             title: "Made for Students",
-            desc: "Built by students, for students. A simple, modern, and useful tool to enhance campus life.",
+            desc: "Built with love for students. A simple, modern, and useful tool to enhance campus life.",
           },
         ].map((card, i) => (
           <motion.div
