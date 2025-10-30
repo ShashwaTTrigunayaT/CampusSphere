@@ -11,45 +11,53 @@ const { checkForAuth } = require("./middleware/auth");
 require('dotenv').config();
 require("./Cron/fetchEvents");
 
-
 const app=express();
 
-// Define all the allowed Vercel frontend URLs (CRITICAL FIX)
+// === FIX 1: TRUST PROXY ===
+// This MUST be near the top.
+app.set('trust proxy', 1);
+
+// === FIX 2: LOGGER ===
+// This MUST be before CORS to catch the OPTIONS request.
+app.use((req, res, next) => {
+    console.log(`[REQUEST RECEIVED] Method: ${req.method}, Path: ${req.path}`);
+    next();
+});
+
+// Define all the allowed Vercel frontend URLs
 const ALLOWED_ORIGINS = [
-    "https://campus-sphere-beta.vercel.app", // The main public domain
-    "https://campus-sphere-git-main-shashwattrigunayats-projects.vercel.app", // The Git main branch deployment
-    "https://campus-sphere-8y7dv9q4m-shashwattrigunayats-projects.vercel.app", // Specific deployment hash (safe to include)
-    "http://localhost:5000", // Optional: For local development testing
+    "https://campus-sphere-beta.vercel.app", 
+    "https://campus-sphere-git-main-shashwattrigunayats-projects.vercel.app", 
+    "https://campus-sphere-8y7dv9q4m-shashwattrigunayats-projects.vercel.app", 
+    "http://localhost:5000", 
 ];
 
+// === FIX 3: CORS MIDDLEWARE ===
 app.use(cors({
-    origin: ALLOWED_ORIGINS, // <-- Uses the array of allowed domains
-    credentials: true,
-    // Add all necessary HTTP methods
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    origin: ALLOWED_ORIGINS, 
+    credentials: true,
+    // You MUST add "OPTIONS" here to allow the browser's security check
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], 
 }));
 
+// === REST OF YOUR MIDDLEWARE ===
 app.use(express.static(path.resolve("./public")))
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-    // Log 1: The first point where the request hits your Express app
-    console.log(`[REQUEST RECEIVED] Method: ${req.method}, Path: ${req.path}, Time: ${new Date().toISOString()}`);
-    next();
-});
-app.set('trust proxy', 1);
+
+// (Your duplicate logger was here, I removed it)
+
 app.use(checkForAuth("token"));
 app.use("/user",userRoute);
 app.use("/event",eventRoute);
 
-// Use a default port of 5000 (standard for MERN backend)
 const Port=process.env.PORT||5000;
 
 mongoose.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 }).then(() => console.log("MongoDB connected"))
-  .catch(err => console.error("MongoDB connection error:", err));
+  .catch(err => console.error("MongoDB connection error:", err));
 
 app.listen(Port,()=>console.log(`Server is started at Port:${Port}`))
