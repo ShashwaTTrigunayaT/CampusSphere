@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // detect route changes
+  const location = useLocation(); 
   const [active, setActive] = useState(false);
 
   const logout = () => {
@@ -15,10 +15,11 @@ const Navbar = () => {
   useEffect(() => {
     const userActive = localStorage.getItem("data.token");
     setActive(!!userActive);
-  }, [location]); // re-run whenever the route changes
+  }, [location]); 
 
+  
   return (
-    <footer className='w-full h-14 flex justify-between items-center shadow-md px-72 font-serif'>
+    <nav className='w-full h-14 flex justify-between items-center shadow-md px-72 font-serif'>
       <div className='font-serif font-bold text-[#c89c5d] text-xl'>CampusSphere</div>
       <div>
         <Link className='px-2 text-[#1E3A8A] hover:text-[#c89c5d]' to="/">Home</Link>
@@ -31,16 +32,13 @@ const Navbar = () => {
         {active && (
           <Link className='px-2 text-[#1E3A8A] hover:text-[#c89c5d]' to="/profile">Dashboard</Link>
         )}
-        <Link className='px-2 text-[#1E3A8A] hover:text-[#c89c5d]' to="/about">About Us</Link>
-        <Link className='px-2 text-[#1E3A8A] hover:text-[#c89c5d]' to="/contacts">Contact Us</Link>
-        
-      
-      
+        <Link className='px-2 text-[#1E3A8A] hover:text-[#c89c5d]' to="/about">About</Link>
+        <Link className='px-2 text-[#1E3A8A] hover:text-[#c89c5d]' to="/contacts">Contact</Link>
         {active && (
-          <button className='px-2 text-[#1E3A8A] hover:text-[#c89c5d]' onClick={logout}>Logout</button>
+          <button onClick={logout} className='px-2 text-[#1E3A8A] hover:text-[#c89c5d]'>Logout</button>
         )}
       </div>
-    </footer>
+    </nav> 
   );
 };
 

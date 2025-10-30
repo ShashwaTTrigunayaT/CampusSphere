@@ -1,4 +1,5 @@
-import React, { act, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import AddToCalender from "./AddToCalender";
 import {
   Calendar,
   Clock,
@@ -8,7 +9,7 @@ import {
   XCircle,
   ArrowRight,
   Bell,
-  Bookmark
+  Bookmark,
 } from "lucide-react";
 
 const EventCard = ({
@@ -32,59 +33,99 @@ const EventCard = ({
     HackerRank: "from-green-400 to-green-600",
     TopCoder: "from-blue-500 to-indigo-600",
   };
-  
-  const [active, setActive] = useState(false);
+
+  const [active, setActive] = useState(false); 
   const [bookmarked, setBookmarked] = useState(false);
   const [alerted, setAlerted] = useState(false);
+
   
+  const [isBookmarking, setIsBookmarking] = useState(false);
+  const [isAlerting, setIsAlerting] = useState(false);
+  const [error, setError] = useState(null); 
+
   
-  const handleBookmark = (bookmarked) => {
-    fetch("http://localhost:5000/user/bookmarks", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        eventId: eventId,
-        userId: localStorage.getItem("data.email"),
-       
-      }),
-    });
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+  
+  const handleBookmark = async () => {
+    if (isBookmarking) return; 
+    setIsBookmarking(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`${API_URL}/user/bookmarks`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          
+        },
+        body: JSON.stringify({
+          eventId: eventId,
+          userId: localStorage.getItem("data.email"),
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update bookmark");
+      }
+
+      
+      setBookmarked((prev) => !prev);
+    } catch (err) {
+      console.error("Bookmark error:", err);
+      setError("Failed to update bookmark.");
+    } finally {
+      setIsBookmarking(false);
+    }
   };
 
-  const handleAlert = (alerted) => {
-    fetch("http://localhost:5000/user/alerts", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        eventId: eventId,
-        userId: localStorage.getItem("data.email"),
-        
-      }),
-    }).then((res) => res.json())
-    .then((data) => {
-      alert(data.message);
-    })
-    .catch((error) => {
-      throw new Error("Error in setting alert: " + error.message)
-    });
-  };
   
+  const handleAlert = async () => {
+    if (isAlerting) return; 
+    setIsAlerting(true);
+    setError(null);
 
-  // State for Bookmark and Alerts
-  
+    try {
+      const res = await fetch(`${API_URL}/user/alerts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          
+        },
+        body: JSON.stringify({
+          eventId: eventId,
+          userId: localStorage.getItem("data.email"),
+        }),
+      });
+      
+      const data = await res.json(); 
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update alert");
+      }
+      
+      
+      
+      
+      
+      setAlerted((prev) => !prev);
+
+    } catch (err) {
+      console.error("Alert error:", err);
+      setError(err.message || "Failed to update alert.");
+    } finally {
+      setIsAlerting(false);
+    }
+  };
+
   
   useEffect(() => {
-    if(localStorage.getItem("data.token")){
-    setActive(true);
-    }
-    else{
+    if (localStorage.getItem("data.token")) {
+      setActive(true);
+    } else {
       setActive(false);
     }
   }, []);
-  
 
   return (
     <div className="w-80 bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 p-6 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
@@ -128,7 +169,7 @@ const EventCard = ({
             <XCircle size={16} className="text-red-500" />
           )}
           {status}
-        </p>
+        </p> {/* <-- TYPO FIXED */}
         <p className="flex items-center gap-2">
           <Globe size={16} /> {mode}
         </p>
@@ -140,29 +181,39 @@ const EventCard = ({
       {/* Alert & Bookmark Icons */}
       {active && (
         <div className="mt-4 flex gap-4 justify-end">
-        <button
-          onClick={() => {setAlerted(!alerted);
-            if(alerted===false)handleAlert();}}
-          className={`p-2 rounded-full transition ${
-            alerted ? "bg-yellow-200" : "bg-gray-100 hover:bg-gray-200"
-          }`}
-        >
-          <Bell size={20} className={alerted ? "text-yellow-600" : "text-gray-600"} />
-        </button>
+          <button
+            onClick={handleAlert} 
+            disabled={isAlerting} 
+            className="p-2 rounded-full transition disabled:opacity-50"
+            title={alerted ? "Remove alert" : "Set alert"}
+          >
+            <Bell
+              size={20}
+              className={alerted ? "fill-yellow-500 text-yellow-600" : "text-gray-600 hover:text-yellow-600"}
+            />
+          </button>
 
-        <button
-          onClick={() => {setBookmarked(!bookmarked);
-            if(bookmarked===false)handleBookmark();}}
-          className={`p-2 rounded-full transition ${
-            bookmarked ? "bg-indigo-200" : "bg-gray-100 hover:bg-gray-200"
-          }`}
-        >
-          <Bookmark size={20} className={bookmarked ? "text-indigo-600" : "text-gray-600"} />
-        </button>
-      </div>
-      )
-
-      }
+          <button
+            onClick={handleBookmark} 
+            disabled={isBookmarking} 
+            className="p-2 rounded-full transition disabled:opacity-50"
+            title={bookmarked ? "Remove bookmark" : "Bookmark event"}
+          >
+            <Bookmark
+              size={20}
+              className={bookmarked ? "fill-indigo-600 text-indigo-600" : "text-gray-600 hover:text-indigo-600"}
+            />
+          </button>
+          
+          <AddToCalender
+            title={title}
+            eventType={type}
+            eventDateTime={eventDate}
+            eventDuration={duration}
+            description={description}
+          />
+        </div>
+      )}
 
       {/* CTA Button */}
       <a
