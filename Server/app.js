@@ -11,6 +11,7 @@ const { checkForAuth } = require("./middleware/auth");
 require('dotenv').config();
 require("./Cron/fetchEvents");
 
+
 const app=express();
 
 // Define all the allowed Vercel frontend URLs (CRITICAL FIX)
@@ -32,6 +33,7 @@ app.use(express.static(path.resolve("./public")))
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.set('trust proxy', 1);
 app.use(checkForAuth("token"));
 app.use("/user",userRoute);
 app.use("/event",eventRoute);
