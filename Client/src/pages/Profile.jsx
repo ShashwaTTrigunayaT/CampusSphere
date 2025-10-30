@@ -434,7 +434,7 @@ const Profile = () => {
             {
               icon: <Calendar className="w-6 h-6 text-pink-500" />,
               label: "Upcoming",
-              value: upcomingEventsCount || 0,
+              value:0,
               onClick: () => {
                 navigate("/upcoming");
               },
