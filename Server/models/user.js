@@ -8,13 +8,14 @@ const userSchema=new mongoose.Schema({
     },
     username:{
         type:String,
-       default:"NO-USERNAME",
+       default:"user"+Math.floor(Math.random()*10000),
        unique:true,
        sparse:true,
         
         
     },
     institution:{
+        default:"Your Institution Name",
         type:String,
        
         

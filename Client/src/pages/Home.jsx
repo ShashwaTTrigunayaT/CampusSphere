@@ -109,14 +109,14 @@ const Home = () => {
       label: "Internships",
       image: internshipImg,
       description: "Find your dream internship.",
-      eventType: null,
+      eventType: "Internship",
     },
     {
       id: "Festivals",
       label: "Festivals",
       image: festivalsImg,
       description: "Join college festivals & events.",
-      eventType: null,
+      eventType: "Fest",
     },
   ];
 
