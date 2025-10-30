@@ -6,7 +6,7 @@ import { Route,BrowserRouter,createBrowserRouter,createRoutesFromElements,Router
 import Signup from './pages/Signup.jsx'
 import Signin from './pages/Signin.jsx'
 import Home from './pages/Home.jsx'
-import Layout from './layout.jsx'
+import Layout from './Layout.jsx'
 import Events from './pages/Events.jsx'
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
