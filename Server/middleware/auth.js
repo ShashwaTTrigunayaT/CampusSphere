@@ -10,23 +10,34 @@ const { validateToken } = require("../service/auth");
 // but does NOT block the request if they're not logged in.
 // Use this for public pages (Home, About, etc.)
 function checkForAuth(cookieName) {
-   return function(req, res, next) { 
-    const cookieTokenValue = req.cookies[cookieName];
-    
-    if (!cookieTokenValue) {
-      req.user = null; // Make sure req.user is null if no token
-      return next();
-    }
+   return function(req, res, next) { 
+     // Log 1: Middleware starts
+     console.log(`[AUTH DEBUG] 1/4: checkForAuth middleware started for path: ${req.path}`);
 
-    // 2. Validate the token
-    const userPayload = validateToken(cookieTokenValue);
-    
-    // 3. Attach payload or null to the request
-    // If 'validateToken' returned null (bad token), req.user will be null
-    req.user = userPayload; 
-    
-    return next();
-  }
+    const cookieTokenValue = req.cookies[cookieName];
+    
+     // Log 2: Check for token
+     console.log(`[AUTH DEBUG] 2/4: Token cookie found? ${cookieTokenValue ? 'Yes' : 'No'}`);
+
+    if (!cookieTokenValue) {
+      req.user = null; // Make sure req.user is null if no token
+      console.log("[AUTH DEBUG] 3/4: No token. Setting req.user = null and proceeding.");
+      return next();
+    }
+
+    // 2. Validate the token
+    const userPayload = validateToken(cookieTokenValue);
+    
+     // Log 3: Log validation result
+     console.log(`[AUTH DEBUG] 3/4: Token validation result: ${userPayload ? 'Valid (User ID: ' + userPayload._id + ')' : 'Invalid'}`);
+
+    // 3. Attach payload or null to the request
+    req.user = userPayload; 
+    
+     // Log 4: Proceeding to next middleware/route
+     console.log("[AUTH DEBUG] 4/4: Attaching user to req and proceeding.");
+    return next();
+  }
 }
 
 // --- 4. NEW SECURE MIDDLEWARE ---

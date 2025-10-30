@@ -53,21 +53,39 @@ async function handleUserSignup(req, res) {
 
 async function handleUserSignin(req, res) {
   try {
+    // Log 1: Function starts
+    console.log("[SIGNIN DEBUG] 1/7: Controller started.");
     const { email, password } = req.body;
     
+    // Log 2: Show incoming data (but not password)
+    console.log(`[SIGNIN DEBUG] 2/7: Received email: ${email}`);
+
     if (!email || !password) {
+        console.error("[SIGNIN DEBUG] FAILED: Email or password missing.");
         return res.status(400).json({ error: "Please provide email and password" });
     }
 
+    // Log 3: Before database call
+    console.log("[SIGNIN DEBUG] 3/7: Calling User.matchPassword...");
     const user = await User.matchPassword(email, password);
     
+    // Log 4: After database call
+    console.log(`[SIGNIN DEBUG] 4/7: User.matchPassword returned: ${user ? user._id : 'null'}`);
+
     if (!user) {
-        return res.status(401).json({ error: 'Invalid email or password' });
+        console.warn("[SIGNIN DEBUG] FAILED: Invalid email or password (user is null).");
+       return res.status(401).json({ error: 'Invalid email or password' });
     }
     
+    // Log 5: Before token creation
+    console.log("[SIGNIN DEBUG] 5/7: Calling createUserToken...");
     const token = createUserToken(user);
-   
+    
+    // Log 6: After token creation
+    console.log(`[SIGNIN DEBUG] 6/7: Token created: ${token ? 'OK' : 'FAILED'}`);
+
     if (!token) {
+        console.error("[SIGNIN DEBUG] FAILED: Token creation returned null/undefined.");
         return res.status(500).json({ error: 'Error creating token' });
     }
 
@@ -75,27 +93,32 @@ async function handleUserSignin(req, res) {
     const profileImageURL = user.profileImageURL;
     const eventData = { alerts: user.alerts, bookmarks: user.bookmarks };
 
-    // === CRITICAL FIX: CHAIN THE RESPONSE ===
-    // This sends the cookie AND the json data in ONE response.
+    // Log 7: Before sending final response
+    console.log("[SIGNIN DEBUG] 7/7: Success. Sending cookie and JSON response.");
+
+    // === CRITICAL FIX: CHAIN THE RESPONSE ===
     return res.cookie("token", token, {
         httpOnly: true,
         secure: true,
         sameSite: "none",
         maxAge: 7 * 24 * 60 * 60 * 1000
     })
-    .status(200) // Chain the status
-    .json({ // Chain the json
-        message: "Login successful", 
-        token, 
-        name, 
-        profileImageURL, 
-        email: user.email, 
-        eventData 
-    });
-    // =======================================
+    .status(200) // Chain the status
+    .json({ // Chain the json
+        message: "Login successful", 
+        token, 
+        name, 
+        profileImageURL, 
+        email: user.email, 
+        eventData 
+    });
+    // =======================================
 
   } catch (error) {
-    console.error("Error in handleUserSignin:", error);
+    // Log 8: The CRITICAL catch block
+    console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    console.error("[SIGNIN DEBUG] FATAL CATCH BLOCK ERROR:", error);
+    console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
