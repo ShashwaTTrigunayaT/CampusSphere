@@ -37,6 +37,8 @@ async function fetchCodeforcesEvents() {
               eventDate: new Date(
                 response.data.result[i].startTimeSeconds * 1000
               ),
+              logoURL: "https://res.cloudinary.com/startup-grind/image/upload/c_fill,f_auto,g_center,q_100/v1/gcs/platform-data-codeforces/events/Codeforces_logo.png",
+              bannerURL: "https://codeforces.com/s/72583/images/bg_new.png",
               registrationDeadline: new Date(
                 response.data.result[i].startTimeSeconds * 1000
               ),

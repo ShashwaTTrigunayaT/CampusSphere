@@ -31,6 +31,8 @@ async function fetchCodeChefEvents() {
             platform: "CodeChef",
             type: "Coding Competition",
             link: events[i].href,
+            logoURL: "https://www.codechef.com/themes/new_design/images/logo.png",
+            bannerURL: "https://s3.amazonaws.com/codechef_shared/sites/default/files/pictures/contest-banners/codechef-starters-133-banner.jpeg",
             eventDate: new Date(events[i].start + "Z"),
             registrationDeadline: new Date(events[i].start + "Z"),
             duration: `${Math.floor(

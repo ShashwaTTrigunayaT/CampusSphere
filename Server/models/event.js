@@ -1,10 +1,12 @@
 const mongoose = require("mongoose");
 const eventSchema = new mongoose.Schema({
     externalId: {
-        type:Number,
+        type: String,
         required:true,
         unique:true,
+        
     },
+    
     title: {
         type: String,
         required: true,
@@ -43,6 +45,7 @@ const eventSchema = new mongoose.Schema({
 
     },
     bannerURL: { type: String },
+    logoURL: { type: String },
     status: {
         type: String,
         enum: ["Upcoming", "Ongoing", "Expired"],
@@ -78,6 +81,9 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true,
 
+    },
+    organization: {
+        type: String,
     },
     createdAt: {
         type: Date,

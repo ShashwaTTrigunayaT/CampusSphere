@@ -31,6 +31,8 @@ async function fetchAtCoderEvents() {
             platform: "AtCoder",
             type: "Coding Competition",
             link: events[i].href,
+            logoURL: "https://atcoder.jp/favicon.ico",
+            bannerURL: "https://atcoder.jp/assets/atcoder/images/logo-big.png",
             eventDate: new Date(events[i].start + "Z"),
             registrationDeadline: new Date(events[i].start + "Z"),
             duration: `${Math.floor(
@@ -44,7 +46,7 @@ async function fetchAtCoderEvents() {
   } catch (error) {
     
     
-    console.error("Error fetching AtCoder events:", error.message || error);
+    throw new Error("Error fetching AtCoder events: " + (error.message || util.inspect(error)));
   }
   
 }

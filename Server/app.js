@@ -19,24 +19,21 @@ app.set('trust proxy', 1);
 
 // === FIX 2: LOGGER ===
 // This MUST be before CORS to catch the OPTIONS request.
-app.use((req, res, next) => {
-    console.log(`[REQUEST RECEIVED] Method: ${req.method}, Path: ${req.path}`);
-    next();
-});
+
 
 // Define all the allowed Vercel frontend URLs
 const ALLOWED_ORIGINS = [
     "https://campus-sphere-beta.vercel.app", 
     "https://campus-sphere-git-main-shashwattrigunayats-projects.vercel.app", 
     "https://campus-sphere-8y7dv9q4m-shashwattrigunayats-projects.vercel.app", 
-    "http://localhost:5000", 
+    "http://localhost:5173", 
 ];
 
 // === FIX 3: CORS MIDDLEWARE ===
 app.use(cors({
     origin: ALLOWED_ORIGINS, 
     credentials: true,
-    // You MUST add "OPTIONS" here to allow the browser's security check
+    
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], 
 }));
 

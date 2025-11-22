@@ -5,11 +5,13 @@ const fetchAtCoderEvents = require("../service/atcoderFetcher");
 const fetchHackerRankEvents=require("../service/hackerrankFetcher");
 const fetchLeetcodeEvents=require("../service/leetcodefetcher");
 const deleteOldEvents = require("../service/eventsManager");
-const {sendEmailAlerts} = require("../service/alerts")
+const {sendEmailAlerts} = require("../service/alerts");
+const fetchDevFolioEvents = require("../service/devFolioFetcher");
+const fetchUnstopEvents = require("../service/unstopFetcher");
 
 cron.schedule("*/60 * * * *", async () => { 
 
-  console.log("Fetching Codeforces events...");
+  
   
    try {
     
@@ -18,9 +20,12 @@ cron.schedule("*/60 * * * *", async () => {
     await fetchAtCoderEvents();
     await fetchHackerRankEvents();
     await fetchLeetcodeEvents();
+    
+    
+    await fetchDevFolioEvents();
+    await fetchUnstopEvents();
     await deleteOldEvents();
-    console.log(` Events fetched successfully at ${new Date()}`);
-    console.log("Old events deleted successfully.");
+    
    } catch (error) {
     console.log(" Error fetching events:", error);
     
@@ -29,7 +34,7 @@ cron.schedule("*/60 * * * *", async () => {
 });
 cron.schedule("*/30 * * * *",async ()=>{
   try {
-    console.log("Sending email alerts to users...");
+    console.log("Sending email alerts...");
     await sendEmailAlerts();
     
   } catch (error) {

@@ -35,6 +35,8 @@ async function fetchLeetcodeEvents() {
             platform: 'LeetCode',
             type: "Coding Competition",
             link: events[i].href,
+            logoURL: 'https://leetcode.com/static/images/LeetCode-logo.png',
+            bannerURL: 'https://leetcode.com/static/images/LeetCode_banner.png',
 
            eventDate: new Date(events[i].start + 'Z'),
             registrationDeadline: new Date(events[i].start + 'Z'),

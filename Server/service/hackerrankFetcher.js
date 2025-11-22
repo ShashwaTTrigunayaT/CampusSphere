@@ -31,6 +31,8 @@ async function fetchHackerRankEvents() {
             platform: "HackerRank",
             type: "Coding Competition",
             link: events[i].href,
+            logoURL: "https://hrcdn.net/fcore/assets/brand/hackerrank-logo-4b6c7f5d5f.svg",
+            bannerURL: "https://hrcdn.net/fcore/assets/brand/hackerrank-banner-1a3b3f4f6e.png",
             eventDate: new Date(events[i].start + "Z"),
             registrationDeadline: new Date(events[i].start + "Z"),
             duration: `${Math.floor(

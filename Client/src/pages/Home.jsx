@@ -95,7 +95,7 @@ const Home = () => {
       label: "Hackathons",
       image: hackathonImg,
       description: "Participate in exciting hackathons.",
-      eventType: "Hackathons",
+      eventType: "Hackathon",
     },
     {
       id: "Contests",
