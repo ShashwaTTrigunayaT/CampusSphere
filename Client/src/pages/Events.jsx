@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import EventCard from "../components/EventCard";
 import SearchBar from "../components/SearchBar";
-import { AlertCircle, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight, Loader2,Search } from "lucide-react";
 
 const Events = () => {
   
