@@ -9,7 +9,7 @@ const {sendEmailAlerts} = require("../service/alerts");
 const fetchDevFolioEvents = require("../service/devFolioFetcher");
 const fetchUnstopEvents = require("../service/unstopFetcher");
 
-cron.schedule("*/60 * * * *", async () => { 
+cron.schedule("* * * * *", async () => { 
 
   
   
