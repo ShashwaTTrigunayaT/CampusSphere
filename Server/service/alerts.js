@@ -2,6 +2,7 @@ const USER = require("../models/user");
 const EVENT = require("../models/event");
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 
 const transporter = nodemailer.createTransport({
