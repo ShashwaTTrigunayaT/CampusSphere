@@ -1,68 +1,107 @@
 const axios = require("axios");
-const EVENT = require("../models/event"); // Make sure this path is correct
+const EVENT = require("../models/event");
 
-// This helper function is the same as before
-function getStipendString(jobDetail) {
-  if (jobDetail?.stipend?.stipend_type === "unpaid" || jobDetail?.internship_type === "Unpaid") {
-    return "Unpaid";
-  }
-  if (jobDetail?.not_disclosed) {
-    return "Not Disclosed";
-  }
-  if (jobDetail?.stipend?.min_stipend && jobDetail?.stipend?.max_stipend) {
-    return `₹${jobDetail.stipend.min_stipend} - ₹${jobDetail.stipend.max_stipend}/month`;
-  }
-  if (jobDetail?.stipend?.min_stipend) {
-    return `₹${jobDetail.stipend.min_stipend}/month`;
-  }
-  if (jobDetail?.isPaid) {
-    return "Paid";
-  }
-  return "Not Disclosed"; // Default fallback
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Helper: Safely parse dates
+function parseDate(dateStr, fallback = null) {
+  if (!dateStr) return fallback;
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? fallback : d;
 }
 
-// This is the new fetcher function with a loop
+// Helper: Extract Stipend/Salary from the specific JSON structure provided
+function getStipendString(jobDetail) {
+  if (!jobDetail) return "Not Disclosed";
+
+  // 1. Check strict Unpaid status
+  if (jobDetail.paid_unpaid === "unpaid") {
+    return "Unpaid";
+  }
+
+  // 2. Check if salary is hidden (show_salary: 0)
+  if (jobDetail.paid_unpaid === "paid" && jobDetail.show_salary === 0) {
+    return "Paid (Not Disclosed)";
+  }
+
+  // 3. Check for specific numbers if visible
+  if (jobDetail.min_salary || jobDetail.max_salary) {
+    const min = jobDetail.min_salary || 0;
+    const max = jobDetail.max_salary || 0;
+    if (min === max) return `₹${min}/month`;
+    return `₹${min} - ₹${max}/month`;
+  }
+
+  return "Paid";
+}
+
 async function fetchUnstopInternships() {
   console.log("[FETCHER] Starting Unstop internship fetch loop...");
+
   try {
     let page = 1;
     let keepFetching = true;
     let totalFetched = 0;
-    const perPage = 10; // The API seems to force 10
-    const maxPages = 50;  // We will fetch 10 pages (10 * 10 = 100 internships)
+    const perPage = 10;
+    const maxPages = 50;
 
-    // Loop until we run out of pages or hit our max limit
     while (keepFetching && page <= maxPages) {
-      
-      // 1. Create the API URL for the current page
       const API_URL = `https://unstop.com/api/public/opportunity/search-result?opportunity=internships&page=${page}&per_page=${perPage}&oppstatus=open`;
       
-      console.log(`[FETCHER] Fetching page ${page} of Unstop internships...`);
+      console.log(`[FETCHER] Fetching page ${page}...`);
       
       const response = await axios.get(API_URL);
-      const internships = response.data.data.data;
+      const internships = response.data?.data?.data;
 
-      // 2. Check if the API returned an empty page
       if (!internships || internships.length === 0) {
         console.log(`[FETCHER] No more internships found. Stopping at page ${page}.`);
         keepFetching = false;
-        continue; // Stops the loop
+        continue;
       }
 
-      // 3. Process the 10 internships we just got
       const operations = internships.map(internship => {
-        const externalId = internship.id.toString(); 
-        const link = internship.seo_url;
-        const logoURL = internship.logoUrl2 || internship.logo_path;
+        const externalId = internship.id.toString();
+
+        // 1. URL: Use 'seo_url' if available (it is absolute in your JSON)
+        let link = internship.seo_url || internship.public_url;
+        if (link && !link.startsWith("http")) {
+          link = `https://unstop.com/${link}`;
+        }
+
+        // 2. REGISTRATION DEADLINE (When apps close)
+        // usage of 'end_date' (e.g., "2026-01-09...")
+        const regDeadline = parseDate(internship.end_date || internship.regnRequirements?.end_regn_dt);
+
+        // 3. EVENT DATE (When internship starts)
+        // Your JSON usually lacks 'start_date'. 
+        // Logic: Try to find a real start date. If missing, fallback to Deadline 
+        // (so it shows as "Upcoming" until applications close).
+        const rawStartDate = internship.start_date || internship.execution_date || internship.jobDetail?.start_date;
+        const eventDate = parseDate(rawStartDate, regDeadline);
+
+        // 4. LOCATION
+        let location = "Remote";
+        if (internship.jobDetail?.type === 'wfh' || internship.region === 'online') {
+          location = "Work From Home";
+        } else if (internship.jobDetail?.locations?.length > 0) {
+          location = internship.jobDetail.locations.join(', ');
+        } else if (internship.jobDetail?.type === 'in_office') {
+            location = "In Office"; // Fallback if location array is empty but type is office
+        }
+
+        // 5. BANNER & LOGO
         const bannerURL = internship.seo_details?.[0]?.sharable_image_url || internship.banner_mobile?.image_url || null;
-        const tags = internship.filters?.map(tag => tag.name) || [];
-        const location = internship.jobDetail?.locations?.join(', ') || null;
-        const mode = internship.region === 'online' || internship.jobDetail?.type === 'work_from_home' ? 'Online' : 'Offline';
-        const organizationName = internship.organisation?.name || null;
+        // Use root logoUrl2 (150x150) or organization logo
+        const logoURL = internship.logoUrl2 || internship.organisation?.logoUrl2;
+
+        // 6. DESCRIPTION
+        const description = internship.details || internship.seo_details?.[0]?.description || "No Description";
+        
+        // 7. STIPEND
         const stipend = getStipendString(internship.jobDetail);
 
         return EVENT.findOneAndUpdate(
-          { externalId: externalId }, 
+          { externalId: externalId },
           {
             $set: {
               externalId: externalId,
@@ -70,36 +109,33 @@ async function fetchUnstopInternships() {
               platform: "Unstop",
               type: "Internship",
               link: link,
-              eventDate: new Date(internship.start_date), 
-              registrationDeadline: new Date(internship.regnRequirements?.end_regn_dt),
-              duration:"Not Disclosed",
+              eventDate: eventDate,            
+              registrationDeadline: regDeadline, 
+              duration: "Not Disclosed",
               location: location,
               bannerURL: bannerURL,
-              mode: mode,
-              tags: tags,
+              mode: location === "Work From Home" ? "Online" : "Offline",
+              tags: internship.filters?.map(tag => tag.name) || [],
               logoURL: logoURL,
-              description: internship.seo_details?.[0]?.description || "No Description",
-              organizationName: organizationName,
+              description: description,
+              organizationName: internship.organisation?.name || "Unstop",
               stipend: stipend,
             }
           },
-          { upsert: true } 
+          { upsert: true, new: true }
         );
       });
 
-      // 4. Wait for the 10 events to save, then move to the next page
       await Promise.all(operations);
       totalFetched += internships.length;
-      page++; // Go to the next page
+      
+      await sleep(1000); // Politeness delay
+      page++;
     }
-
-    console.log(`[FETCHER] Successfully fetched and upserted ${totalFetched} total events from Unstop over ${page - 1} pages.`);
+    console.log(`[FETCHER] Finished. Total events: ${totalFetched}`);
 
   } catch (error) {
-    console.error("[FETCHER] Error fetching Unstop events:", error.message);
-    if (error.response) {
-      console.error("Unstop API Response Status:", error.response.status);
-    }
+    console.error("[FETCHER] Critical Error:", error.message);
   }
 }
 

@@ -268,9 +268,11 @@ const EventDetailPage = () => {
                 About this Event
               </h2>
               
-              <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed whitespace-pre-wrap">
-                {event.description || "No description provided."}
-              </div>
+              {/* UPDATED: Uses dangerouslySetInnerHTML for HTML rendering */}
+              <div 
+                className="prose prose-slate max-w-none text-slate-600 leading-relaxed [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>p]:mb-4"
+                dangerouslySetInnerHTML={{ __html: event.description || "No description provided." }}
+              />
 
               {event.tags && event.tags.length > 0 && (
                 <div className="mt-10">

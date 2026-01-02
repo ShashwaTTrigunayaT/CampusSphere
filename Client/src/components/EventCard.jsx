@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AddToCalender from "./AddToCalender"; 
@@ -30,6 +31,11 @@ const EventCard = ({
 }) => {
   
   const navigate = useNavigate(); 
+  
+  // State to manage which image we are showing
+  // "banner" -> "logo" -> "gradient"
+  const [imageSource, setImageSource] = useState(bannerURL || logoURL || null);
+  const [imageStatus, setImageStatus] = useState("loading"); // loading, error, success
 
   const platformColors = {
     Codeforces: "from-blue-500 to-indigo-600",
@@ -39,24 +45,38 @@ const EventCard = ({
     HackerRank: "from-green-400 to-green-600",
     TopCoder: "from-blue-500 to-indigo-600",
     DevFolio: "from-purple-500 to-indigo-600",
+    Unstop: "from-blue-400 to-blue-600",
   };
 
   const [active, setActive] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [alerted, setAlerted] = useState(false);
-
   const [isBookmarking, setIsBookmarking] = useState(false);
   const [isAlerting, setIsAlerting] = useState(false);
-  const [error, setError] = useState(null);
-
+  
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-  
+  // --- SMART IMAGE FALLBACK LOGIC ---
+  const handleImageError = () => {
+    // 1. If we were trying the Banner, switch to Logo
+    if (imageSource === bannerURL && logoURL) {
+      setImageSource(logoURL);
+    } 
+    // 2. If we were trying the Logo (or didn't have one), switch to Gradient
+    else {
+      setImageSource(null); // Triggers the gradient view
+    }
+  };
+
+  // If the prop changes (e.g. data refresh), reset the image
+  useEffect(() => {
+    setImageSource(bannerURL || logoURL || null);
+  }, [bannerURL, logoURL]);
+
+
   const handleBookmark = async () => {
     if (isBookmarking) return;
     setIsBookmarking(true);
-    setError(null);
-
     try {
       const res = await fetch(`${API_URL}/user/bookmarks`, {
         method: "POST",
@@ -66,7 +86,6 @@ const EventCard = ({
           userId: localStorage.getItem("data.email"),
         }),
       });
-
       if (!res.ok) throw new Error("Failed to update bookmark");
       setBookmarked((prev) => !prev);
     } catch (err) {
@@ -76,12 +95,9 @@ const EventCard = ({
     }
   };
 
-  
   const handleAlert = async () => {
     if (isAlerting) return;
     setIsAlerting(true);
-    setError(null);
-
     try {
       const res = await fetch(`${API_URL}/user/alerts`, {
         method: "POST",
@@ -91,7 +107,6 @@ const EventCard = ({
           userId: localStorage.getItem("data.email"),
         }),
       });
-
       if (!res.ok) throw new Error("Failed to update alert");
       setAlerted((prev) => !prev);
     } catch (err) {
@@ -100,7 +115,6 @@ const EventCard = ({
       setIsAlerting(false);
     }
   };
-
   
   useEffect(() => {
     if (localStorage.getItem("data.token")) {
@@ -110,40 +124,34 @@ const EventCard = ({
     }
   }, []);
 
-  
   return (
-    <div className="w-75 bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col">
+    <div className="w-full max-w-sm bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col">
       
-      {/* Banner Image */}
-      {bannerURL ? (
+      {/* === BANNER SECTION === */}
+      {/* Logic: If we have an image source, try to show it. If it fails (onError), we switch. If null, show gradient. */}
+      {imageSource ? (
         <img 
-          src={bannerURL} 
+          src={imageSource} 
           alt={`${title} banner`} 
-          className="w-full h-32 object-cover" 
+          className={`w-full h-32 ${imageSource === logoURL ? "object-contain p-4 bg-gray-50" : "object-cover"}`} 
+          onError={handleImageError} 
         />
       ) : (
-        
         <div className={`w-full h-32 bg-gradient-to-r ${platformColors[platform] || "from-gray-400 to-gray-600"}`}></div>
       )}
 
       {/* Main card content area */}
       <div className="p-6 flex flex-col flex-grow">
         
-        {/* Logo + Platform Badge */}
         <div className="flex items-center gap-2 mb-3">
           {logoURL && (
-            <img src={logoURL} alt={platform} className="w-6 h-6 rounded-full object-contain bg-white" />
+            <img src={logoURL} alt={platform} className="w-6 h-6 rounded-full object-contain bg-white shadow-sm" />
           )}
-          <div
-            className={`inline-block px-3 py-1 text-xs font-bold text-white rounded-full bg-gradient-to-r ${
-              platformColors[platform] || "from-gray-400 to-gray-600"
-            }`}
-          >
+          <div className={`inline-block px-3 py-1 text-xs font-bold text-white rounded-full bg-gradient-to-r ${platformColors[platform] || "from-gray-400 to-gray-600"}`}>
             {platform}
           </div>
         </div>
 
-        {/* Title (Fixed height + line clamp) */}
         <div className="h-14 mb-2 overflow-hidden">
           <h2 className="text-base font-bold text-gray-800 leading-tight line-clamp-2 hover:text-indigo-600 transition-colors cursor-pointer"
               onClick={() => navigate(`/events/${eventId}`)}>
@@ -151,12 +159,16 @@ const EventCard = ({
           </h2>
         </div>
 
-        {/* Description (Fixed height + line clamp) */}
-        <p className="text-sm text-gray-600 line-clamp-3 mb-4 h-16">
-          {description && description !== "No Description" ? description : "No details provided available for this event."}
-        </p>
+        {/* Description with HTML rendering */}
+        <div 
+          className="text-sm text-gray-600 line-clamp-3 mb-4 h-16 [&>ul]:list-disc [&>ul]:pl-4 [&>p]:mb-1"
+          dangerouslySetInnerHTML={{ 
+            __html: description && description !== "No Description" 
+              ? description 
+              : "No details provided available for this event." 
+          }}
+        />
 
-        {/* Details List */}
         <div className="text-sm text-gray-700 space-y-2 mb-4">
           <p className="flex items-center gap-2">
             <Calendar size={16} className="text-indigo-500" /> {eventDate ? new Date(eventDate).toLocaleDateString() : "TBD"}
@@ -168,7 +180,6 @@ const EventCard = ({
             <Globe size={16} className="text-indigo-500" /> {mode}
           </p>
           
-          {/* Status Check */}
           <p className="flex items-center gap-2 font-medium">
              {status === "Active" || status === "Upcoming" ? (
                 <CheckCircle size={16} className="text-green-600" />
@@ -181,10 +192,7 @@ const EventCard = ({
           </p>
         </div>
 
-        {/* === ACTION BUTTONS ROW (Fixed Layout) === */}
         <div className="mt-auto pt-4 flex gap-2 justify-end items-center border-t border-gray-100">
-          
-          {/* 1. Info Button (Always Visible) */}
           <button
             onClick={() => navigate(`/events/${eventId}`)}
             className="p-2 rounded-full hover:bg-blue-50 transition-colors group"
@@ -193,7 +201,6 @@ const EventCard = ({
             <Info size={20} className="text-gray-400 group-hover:text-blue-600 transition-colors" />
           </button>
 
-          {/* 2. Auth Buttons (Only if logged in) */}
           {active && (
             <>
               <button
@@ -202,10 +209,7 @@ const EventCard = ({
                 className="p-2 rounded-full hover:bg-yellow-50 transition-colors disabled:opacity-50"
                 title={alerted ? "Remove alert" : "Set alert"}
               >
-                <Bell
-                  size={20}
-                  className={alerted ? "fill-yellow-500 text-yellow-600" : "text-gray-400 hover:text-yellow-600 transition-colors"}
-                />
+                <Bell size={20} className={alerted ? "fill-yellow-500 text-yellow-600" : "text-gray-400 hover:text-yellow-600 transition-colors"} />
               </button>
 
               <button
@@ -214,27 +218,22 @@ const EventCard = ({
                 className="p-2 rounded-full hover:bg-indigo-50 transition-colors disabled:opacity-50"
                 title={bookmarked ? "Remove bookmark" : "Bookmark event"}
               >
-                <Bookmark
-                  size={20}
-                  className={bookmarked ? "fill-indigo-600 text-indigo-600" : "text-gray-400 hover:text-indigo-600 transition-colors"}
-                />
+                <Bookmark size={20} className={bookmarked ? "fill-indigo-600 text-indigo-600" : "text-gray-400 hover:text-indigo-600 transition-colors"} />
               </button>
 
-              {/* Add To Calendar Component */}
               <div className="hover:bg-purple-50 rounded-full p-1 transition-colors">
                 <AddToCalender
                   title={title}
                   eventType={type}
                   eventDateTime={eventDate}
                   eventDuration={duration}
-                  description={description}
+                  description={description ? description.replace(/<[^>]*>?/gm, '') : ""} 
                 />
               </div>
             </>
           )}
-        </div>
+        </div> 
 
-        {/* CTA Button */}
         <a
           href={link}
           target="_blank"

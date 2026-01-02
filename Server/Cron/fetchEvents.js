@@ -9,12 +9,13 @@ const {sendEmailAlerts} = require("../service/alerts");
 const fetchDevFolioEvents = require("../service/devFolioFetcher");
 const fetchUnstopEvents = require("../service/unstopFetcher");
 
-cron.schedule("*/60 * * * *", async () => { 
+cron.schedule("*/50 * * * *", async () => { 
 
   
   
    try {
-    
+    await fetchUnstopEvents();
+    await fetchDevFolioEvents();
     await fetchCodeforcesEvents();
     await fetchCodeChefEvents();
     await fetchAtCoderEvents();
@@ -22,9 +23,8 @@ cron.schedule("*/60 * * * *", async () => {
     await fetchLeetcodeEvents();
     
     
-    await fetchDevFolioEvents();
-    await fetchUnstopEvents();
     await deleteOldEvents();
+    
     
    } catch (error) {
     console.log(" Error fetching events:", error);
@@ -32,6 +32,7 @@ cron.schedule("*/60 * * * *", async () => {
    }
   
 });
+
 cron.schedule("*/30 * * * *",async ()=>{
   try {
     console.log("Sending email alerts...");
@@ -39,5 +40,14 @@ cron.schedule("*/30 * * * *",async ()=>{
     
   } catch (error) {
     console.log("Error sending email alerts:", error);
+  }
+})
+cron.schedule("*/60 * * * *",async ()=>{
+  try {
+    
+    await deleteOldEvents();
+    
+  } catch (error) {
+      
   }
 })

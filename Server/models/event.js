@@ -29,10 +29,9 @@ const eventSchema = new mongoose.Schema({
         required: true,
 
     },
-    eventDate: {
-        type: Date,
-        required: true,
-    },
+    eventDate: { type: mongoose.Schema.Types.Mixed,
+        required: true
+     },
 
     tags: {
         type: [String],
