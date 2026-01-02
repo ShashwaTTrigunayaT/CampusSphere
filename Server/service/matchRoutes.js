@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const Event = require('../models/Event'); 
+const Event = require('../models/event'); 
 const pdfParse = require('pdf-parse');
 
 const storage = multer.memoryStorage();
