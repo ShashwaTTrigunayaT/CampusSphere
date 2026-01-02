@@ -11,7 +11,9 @@ import {
   ArrowRight,
   Bell,
   Bookmark,
-  Info
+  Info,
+  Zap,     // Added for "Good Fit" icon
+  Star     // Added for "Strong Match" icon
 } from "lucide-react";
 
 const EventCard = ({
@@ -28,6 +30,8 @@ const EventCard = ({
   registrationDeadline,
   bannerURL,
   logoURL,
+  tags,           // Ensure tags are passed if available
+  userSkills = [] // ✅ NEW: Receive user skills
 }) => {
   
   const navigate = useNavigate(); 
@@ -55,6 +59,37 @@ const EventCard = ({
   const [isAlerting, setIsAlerting] = useState(false);
   
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+  // --- 🧠 SMART MATCH LOGIC ---
+  const renderMatchBadge = () => {
+    if (!userSkills || userSkills.length === 0) return null;
+
+    // Combine title, description, and tags into one string for checking
+    // We handle cases where tags might be undefined
+    const eventContext = (title + description + (tags ? tags.join(" ") : "")).toLowerCase();
+    
+    // Count how many of the user's skills appear in this event's text
+    const matchCount = userSkills.filter(skill => eventContext.includes(skill.toLowerCase())).length;
+
+    // Logic: High Match vs Good Fit
+    if (matchCount >= 2) {
+      return (
+        <div className="absolute top-3 right-3 z-20 bg-green-100/90 backdrop-blur-sm border border-green-300 text-green-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm animate-pulse">
+          <Star size={12} fill="currentColor" /> 95% Match
+        </div>
+      );
+    } 
+    
+    if (matchCount >= 1) {
+      return (
+        <div className="absolute top-3 right-3 z-20 bg-blue-50/90 backdrop-blur-sm border border-blue-200 text-blue-600 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm">
+          <Zap size={12} fill="currentColor" /> Good Fit
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   // --- SMART IMAGE FALLBACK LOGIC ---
   const handleImageError = () => {
@@ -125,8 +160,11 @@ const EventCard = ({
   }, []);
 
   return (
-    <div className="w-full max-w-sm bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col">
+    <div className="relative w-full max-w-sm bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col group">
       
+      {/* 🚀 Render the Match Badge */}
+      {renderMatchBadge()}
+
       {/* === BANNER SECTION === */}
       {/* Logic: If we have an image source, try to show it. If it fails (onError), we switch. If null, show gradient. */}
       {imageSource ? (

@@ -49,6 +49,9 @@ app.use(checkForAuth("token"));
 app.use("/user",userRoute);
 app.use("/event",eventRoute);
 
+app.use('/api/match', require('./service/matchRoutes'));
+
+
 const Port=process.env.PORT||5000;
 
 mongoose.connect(process.env.MONGO_URL, {

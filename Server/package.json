@@ -26,8 +26,10 @@
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.10",
     "nodemon": "^3.1.10",
+    "pdf-parse": "^1.1.1",
     "sib-api-v3-sdk": "^8.5.0",
     "streamifier": "^0.1.1",
+    "string-similarity": "^4.0.4",
     "util": "^0.12.5",
     "xml2js": "^0.6.2"
   }
