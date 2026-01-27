@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle } from "lucide-react"; 
+import { AlertCircle, Zap, Globe, Award, Briefcase, ArrowRight, Info, MessageCircle } from "lucide-react"; 
 
-
-
-
+// Asset Imports (Ensure these paths are still correct)
 import hackathonImg from "../assets/images/hackathons.jpg";
 import contestImg from "../assets/images/contest.webp";
 import internshipImg from "../assets/images/internship.avif";
@@ -13,371 +11,285 @@ import logoImg from "/logo.png";
 import dashboardBgImg from "/dashboard-BG.jpg"; 
 import defaultAvatarImg from "/default-Avatar.png"; 
 
-
-
-
+// Keep logout external for reuse
 const logout = (setUserActivation, navigate) => {
   localStorage.clear();
   setUserActivation(false);
   navigate("/");
 };
 
+// --- Sub-Components ---
 
-
+const FeaturePill = ({ icon: Icon, text }) => (
+  <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full text-gray-300 text-xs md:text-sm font-medium">
+    <Icon className="w-4 h-4 text-blue-500" />
+    {text}
+  </div>
+);
 
 const TabCard = ({ label, image, description, isActive, onClick }) => (
   <div
     onClick={onClick}
     className={`
-      relative flex flex-col justify-end w- 2/5 md:w-2/5 h-[300px] p-6 rounded-3xl cursor-pointer
-      transition-all duration-300 ease-in-out transform hover:scale-105
-      ${
-        isActive
-          ? "border-2 border-[#1E3A8A] shadow-[0_0_40px_rgba(30,58,138,0.6)]"
-          : "border border-gray-800 shadow-lg hover:shadow-[0_0_30px_rgba(30,58,138,0.4)]"
-      }
-      bg-gradient-to-t from-black/80 to-black/40
-      hover:brightness-110
+      group relative flex flex-col justify-end w-full h-[350px] p-8 rounded-[2.5rem] cursor-pointer
+      transition-all duration-500 ease-out transform hover:-translate-y-3
+      ${isActive 
+        ? "ring-4 ring-blue-600 shadow-[0_20px_60px_rgba(30,58,138,0.5)] scale-[1.02]" 
+        : "border border-white/10 hover:border-blue-500/50"}
+      overflow-hidden
     `}
-    style={{
-      backgroundImage: `url(${image})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-    }}
   >
-    <div className="absolute inset-0 bg-black/40 rounded-3xl"></div>
+    <div 
+      className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
+      style={{ backgroundImage: `url(${image})` }}
+    />
+    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+
     <div className="relative z-10">
-      <p className="text-white text-2xl md:text-3xl font-bold drop-shadow-[0_0_10px_#1E3A8A]">
+      <h3 className="text-white text-3xl font-black mb-2 group-hover:text-blue-400 transition-colors uppercase italic tracking-tighter">
         {label}
+      </h3>
+      <p className="text-gray-300 text-sm line-clamp-2 opacity-80 group-hover:opacity-100 transition-opacity font-medium">
+        {description}
       </p>
-      {description && (
-        <p className="text-gray-200 mt-2 md:mt-4 text-sm md:text-base">
-          {description}
-        </p>
-      )}
     </div>
-    {isActive && (
-      <div className="absolute bottom-4 w-3/4 h-1.5 rounded-full bg-[#1E3A8A] animate-pulse z-10"></div>
-    )}
+
+    <div className="absolute top-8 right-8 bg-white/10 backdrop-blur-md p-3 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+      <ArrowRight className="text-white w-6 h-6" />
+    </div>
   </div>
 );
 
-
-const ErrorMessage = ({ error }) => (
-  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative flex items-center gap-2">
-    <AlertCircle className="w-5 h-5" />
-    <span>{error}</span>
-  </div>
-);
-
-
-
+// --- Main Page Component ---
 
 const Home = () => {
   const [UserActivation, setUserActivation] = useState(false);
   const [activeTab, setActiveTab] = useState("");
-  const [hackathonlen, setHackathonlen] = useState(0);
-  const [contestlen, setContestlen] = useState(0);
-  const [internshiplen, setInternshiplen] = useState(0);
-  const [festivallen, setFestivallen] = useState(0);
+  const [counts, setCounts] = useState({ hackathons: 0, contests: 0, internships: 0, festivals: 0 });
   const [isScrolled, setIsScrolled] = useState(false);
-  
-  
   const [error, setError] = useState(null);
-  
   const navigate = useNavigate();
 
   const tabsData = [
-    
-    
-    {
-      id: "Hackathons",
-      label: "Hackathons",
-      image: hackathonImg,
-      description: "Participate in exciting hackathons.",
-      eventType: "Hackathon",
-    },
-    {
-      id: "Contests",
-      label: "Contests",
-      image: contestImg,
-      description: "Compete in coding competitions.",
-      eventType: "Coding Competition",
-    },
-    {
-      id: "Internships",
-      label: "Internships",
-      image: internshipImg,
-      description: "Find your dream internship.",
-      eventType: "Internship",
-    },
-    {
-      id: "Festivals",
-      label: "Festivals",
-      image: festivalsImg,
-      description: "Join college festivals & events.",
-      eventType: "Fest",
-    },
+    { id: "Hackathons", label: "Hackathons", image: hackathonImg, description: "Build the future in 48 hours. Connect with mentors and win big.", eventType: "Hackathon" },
+    { id: "Contests", label: "Contests", image: contestImg, description: "Competitive programming at its finest. Sharpen your logic.", eventType: "Coding Competition" },
+    { id: "Internships", label: "Internships", image: internshipImg, description: "Exclusive roles from top tech firms and innovative startups.", eventType: "Internship" },
+    { id: "Festivals", label: "Festivals", image: festivalsImg, description: "Experience the vibrant culture of campus fests and workshops.", eventType: "Fest" },
   ];
 
+  // Fetch Event Counts
   useEffect(() => {
-    
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    
-    setError(null); 
-    
-    fetch(`${API_URL}/event`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
+    fetch(`${API_URL}/event`)
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
       })
-      .then((data) => {
-        const hackathonlen = data.hackathon;
-        const contestlen = data.contests;
-        const internshiplen = data.internship;
-        const festivallen = data.fest;
-        localStorage.setItem("hackathonlen", hackathonlen);
-        localStorage.setItem("contestlen", contestlen);
-        localStorage.setItem("internshiplen", internshiplen);
-        localStorage.setItem("festivallen", festivallen);
-        setHackathonlen(hackathonlen);
-        setContestlen(contestlen);
-        setInternshiplen(internshiplen);
-        setFestivallen(festivallen);
+      .then(data => {
+        setCounts({
+          hackathons: data.hackathon || 0,
+          contests: data.contests || 0,
+          internships: data.internship || 0,
+          festivals: data.fest || 0
+        });
       })
-      .catch((error) => {
-        
-        console.error("Error fetching events:", error);
-        setError("Could not load event counts. Please refresh the page.");
-      });
+      .catch(() => setError("Failed to sync live event data."));
   }, []);
 
-  
+  // Handle Scroll
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const eventViewer = (tab) => {
-    localStorage.setItem("activeTab", tab);
+  // Auth Check (Fixed to handle both old/new storage styles)
+  useEffect(() => {
+    const token = localStorage.getItem("data.token") || localStorage.getItem("token");
+    if (token) setUserActivation(true);
+  }, []);
+
+  // Safe Profile Data Retrieval
+  const profileImage = localStorage.getItem("data.profileImageURL") || defaultAvatarImg;
+  const name = localStorage.getItem("data.name") || "Explorer";
+
+  const handleEventNavigation = (eventType) => {
+    localStorage.setItem("activeTab", eventType);
     navigate("/events");
   };
 
-  const handleTabClick = (tabId, eventType) => {
-    setActiveTab(tabId);
-    if (eventType) eventViewer(eventType);
-  };
-
-  const handleRoute = (route) => navigate(route);
-
-  useEffect(() => {
-    const user = localStorage.getItem("data.token");
-    if (user) setUserActivation(true);
-  }, []);
-
-  const profileImage =
-    localStorage.getItem("data.profileImageURL") || defaultAvatarImg;
-  const name = localStorage.getItem("data.name") || "User";
-
-  const premiumButtonClasses = `
-    px-6 py-3 text-white font-bold rounded-3xl
-    bg-gradient-to-br from-[#1E3A8A] to-[#162A60]
-    shadow-xl shadow-[#1E3A8A]/50
-    transition-all duration-300 ease-in-out
-    hover:scale-105 hover:shadow-2xl hover:brightness-110
-    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1E3A8A]
-  `;
-
-  const crystalShapeStyle = {
-    clipPath: "polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%)",
-  };
+  const crystalStyle = { clipPath: "polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%)" };
 
   return (
-    <main className="min-h-screen relative bg-gradient-to-b from-gray-900 via-black to-gray-900 scroll-smooth ">
-      {/* Scroll-activated header */}
-      {UserActivation && (
-        <nav
-          className={`
-            fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ease-in-out
-            ${
-              isScrolled
-                ? "bg-gray-950/80 backdrop-blur-lg border-b border-[#1E3A8A]/50 shadow-lg"
-                : "bg-transparent border-b border-transparent"
-            }
-          `}
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-20 items-center">
-              {/* Logo */}
-              <div
-                onClick={() => navigate("/")}
-                className="cursor-pointer"
-              >
-                <img
-                  className="w-12 h-12 rounded-full border-2 border-[#1E3A8A]"
-                  src={logoImg}
-                  alt="CampusSphere Logo"
-                />
-              </div>
-
-              {/* Profile Card */}
-              <div
-                onClick={() => navigate("/profile")}
-                className="flex items-center gap-3 cursor-pointer rounded-full p-2 transform hover:scale-105 transition-all duration-300"
-              >
-                <img
-                  src={profileImage}
-                  className="w-12 h-12 rounded-full border-2 border-[#1E3A8A] object-cover" 
-                  alt="User Profile"
-                />
-                <p className="text-white font-semibold text-lg mr-3 hidden sm:block">
-                  {name}
-                </p>
-              </div>
-            </div>
+    <main className="min-h-screen bg-[#050505] text-white selection:bg-blue-500 selection:text-white scroll-smooth">
+      
+      {/* 1. Dynamic Navbar */}
+      <nav className={`fixed top-0 w-full z-[100] transition-all duration-500 ${isScrolled ? "bg-black/90 backdrop-blur-xl py-4 border-b border-white/5" : "bg-transparent py-8"}`}>
+        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+          <div onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer group">
+            <img src={logoImg} className="w-10 h-10 rounded-full border border-blue-500 group-hover:rotate-12 transition-transform" alt="Logo" />
+            <span className="font-black tracking-tighter text-2xl uppercase italic group-hover:text-blue-400 transition-colors">CampusSphere</span>
           </div>
-        </nav>
-      )}
+          
+          <div className="flex items-center gap-4">
+            {UserActivation ? (
+              <div onClick={() => navigate("/profile")} className="flex items-center gap-3 bg-white/5 p-1 pr-4 rounded-full border border-white/10 hover:border-blue-500 transition-all cursor-pointer">
+                <img src={profileImage} className="w-9 h-9 rounded-full object-cover border border-blue-500" alt="User" />
+                <span className="text-sm font-bold hidden md:block">{name}</span>
+              </div>
+            ) : (
+              <button onClick={() => navigate("/Signin")} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-bold text-sm transition-all shadow-lg shadow-blue-600/20">
+                Launch
+              </button>
+            )}
+          </div>
+        </div>
+      </nav>
 
-      {/* Hero Section */}
-      <section
-        className="min-h-screen flex flex-col items-center text-center px-6 relative mb-5 border-4 border-[#1E3A8A]"
-        style={{
-          backgroundImage: `url(${dashboardBgImg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <img
-          src={logoImg}
-          className="h-24 md:h-36 mx-auto animate-bounce mt-24"
-          alt="CampusSphere Logo"
-        />
-        <h1 className="text-5xl md:text-6xl font-extrabold text-[#1E3A8A] drop-shadow-[0_0_20px_#1E3A8A] ">
-          Connect. Compete. <br /> Create.
-        </h1>
-        <div className="flex flex-col items-center text-center px-6 mt-28 max-w-4xl mx-auto">
-          <p className="text-[#e3b672] text-3xl font-semibold md:text-xl leading-relaxed max-w-3xl font-serif">
-            Your one-stop platform for everything campus-related. Participate in
-            hackathons, explore internships, and connect with peers across
-            campuses.{" "}
-            <span className="text-[#1E3A8A] font-semibold">
-              <br />
-              Level up your skills and shine!
+      {/* 2. Cinematic Hero Section */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div 
+            className="absolute inset-0 opacity-20 bg-fixed"
+            style={{ backgroundImage: `url(${dashboardBgImg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          ></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/10 via-black to-black"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[160px] animate-pulse"></div>
+        </div>
+
+        <div className="relative z-10 max-w-6xl">
+          <div className="flex justify-center gap-3 mb-10 flex-wrap scale-90 md:scale-100">
+            <FeaturePill icon={Zap} text="AI Smart Matcher" />
+            <FeaturePill icon={Globe} text="Centralized Feed" />
+            <FeaturePill icon={Award} text="Verified Badges" />
+          </div>
+
+          <h1 className="text-6xl md:text-[100px] font-black mb-8 tracking-tighter leading-[0.9] uppercase italic">
+            Connect. Compete. <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-600">
+              Shine Bright.
             </span>
+          </h1>
+
+          <p className="text-gray-400 text-lg md:text-2xl max-w-3xl mx-auto mb-12 font-medium leading-relaxed">
+            Eliminating fragmentation for developers. Aggregate 
+            <span className="text-white italic"> Hackathons</span>, 
+            <span className="text-white italic"> Internships</span>, and 
+            <span className="text-white italic"> Contests</span> into a single intelligent dashboard.
           </p>
-        </div>
-      </section>
 
-      {/* Premium Tab Cards Section */}
-      <section className="flex flex-col items-center gap-12 mb-12">
-        {tabsData.map((tab) => (
-          <TabCard
-            key={tab.id}
-            label={tab.label}
-            description={tab.description}
-            image={tab.image}
-            
-            
-            isActive={activeTab === tab.id}
-            onClick={() => handleTabClick(tab.id, tab.eventType)}
-          />
-        ))}
-      </section>
-
-      {/* Info Section */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-8 px-6 mb-12 text-center">
-        {/* Display Error if it exists */}
-        {error && (
-          <div className="md:col-span-3">
-            <ErrorMessage error={error} />
+          <div className="flex flex-wrap justify-center gap-6 mb-16">
+            {!UserActivation ? (
+              <>
+                <button onClick={() => navigate("/Signup")} className="bg-white text-black px-12 py-5 rounded-full font-black text-xl hover:bg-blue-600 hover:text-white transition-all transform hover:scale-105 shadow-2xl shadow-white/10">
+                  GET STARTED
+                </button>
+                <button onClick={() => navigate("/Signin")} className="bg-transparent border-2 border-white/20 text-white px-12 py-5 rounded-full font-black text-xl hover:bg-white/10 transition-all">
+                  LAUNCH APP
+                </button>
+              </>
+            ) : (
+              <button onClick={() => navigate("/profile")} className="bg-blue-700 text-white px-14 py-5 rounded-full font-black text-xl hover:shadow-[0_0_40px_rgba(30,58,138,0.6)] transition-all transform hover:scale-105">
+                VIEW PROFILE
+              </button>
+            )}
           </div>
-        )}
-        <div className="bg-gray-800/70 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-[#1E3A8A]">
-          <h2 className="text-2xl font-bold text-[#1E3A8A] mb-2">
-            {hackathonlen + contestlen}
-          </h2>
-          <p className="text-gray-200">Hackathons & Contests</p>
-        </div>
-        <div className="bg-gray-800/70 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-[#1E3A8A]">
-          <h2 className="text-2xl font-bold text-[#1E3A8A] mb-2">
-            {internshiplen}
-          </h2>
-          <p className="text-gray-200">Internships Opportunities</p>
-        </div>
-        <div className="bg-gray-800/70 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-[#1E3A8A]">
-          <h2 className="text-2xl font-bold text-[#1E3A8A] mb-2">
-            {festivallen}
-          </h2>
-          <p className="text-gray-200">College Festivals & Events</p>
+
+          <div className="flex flex-wrap justify-center items-center gap-10 py-6 border-y border-white/10 bg-white/[0.02] backdrop-blur-md rounded-2xl md:rounded-full px-12">
+            <button onClick={() => navigate("/About")} className="flex items-center gap-2 group text-gray-400 hover:text-white transition-all font-black uppercase tracking-[0.2em] text-xs">
+              <Info className="w-4 h-4 group-hover:text-blue-400 transition-colors" />
+              Our Mission
+            </button>
+            <div className="hidden md:block w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
+            <button onClick={() => navigate("/Contacts")} className="flex items-center gap-2 group text-gray-400 hover:text-white transition-all font-black uppercase tracking-[0.2em] text-xs">
+              <MessageCircle className="w-4 h-4 group-hover:text-blue-400 transition-colors" />
+              Inquire
+            </button>
+            {UserActivation && (
+              <>
+                <div className="hidden md:block w-1.5 h-1.5 bg-red-600 rounded-full"></div>
+                <button onClick={() => logout(setUserActivation, navigate)} className="text-red-500/60 hover:text-red-500 font-black uppercase tracking-[0.2em] text-xs transition-all">
+                  Exit Sphere
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </section>
 
-      {/* Premium Buttons */}
-      <section className="flex flex-wrap justify-center items-center gap-6 mb-12 px-6">
-        {UserActivation ? (
-          <>
-            <button
-              onClick={() => logout(setUserActivation, navigate)}
-              className={premiumButtonClasses}
-              style={crystalShapeStyle}
-            >
-              Exit
-            </button>
-            <button
-              onClick={() => handleRoute("/profile")}
-              className={premiumButtonClasses}
-              style={crystalShapeStyle}
-            >
-              Profile
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              onClick={() => handleRoute("/Signup")}
-              className={premiumButtonClasses}
-              style={crystalShapeStyle}
-            >
-              Get Started
-            </button>
-            <button
-              onClick={() => handleRoute("/Signin")}
-              className={premiumButtonClasses}
-              style={crystalShapeStyle}
-            >
-              Launch
-            </button>
-          </>
-        )}
-        <button
-          onClick={() => handleRoute("/About")}
-          className={premiumButtonClasses}
-          style={crystalShapeStyle}
-        >
-          Our Mission
-        </button>
-        <button
-          onClick={() => handleRoute("/Contacts")}
-          className={premiumButtonClasses}
-          style={crystalShapeStyle}
-        >
-          Inquire
-        </button>
+      {/* 3. The Interactive Feature Grid */}
+      <section className="max-w-7xl mx-auto px-6 py-32">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+          <div className="max-w-xl">
+            <h2 className="text-5xl font-black italic tracking-tighter mb-4 uppercase">Opportunity Feed</h2>
+            <div className="h-1.5 w-24 bg-blue-600 rounded-full mb-6"></div>
+            <p className="text-gray-500 font-bold text-sm leading-relaxed">
+              Real-time aggregation from across the web. Select a category to explore active listings.
+            </p>
+          </div>
+          <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] text-right backdrop-blur-md">
+            <p className="text-blue-500 font-black text-6xl tracking-tighter leading-none mb-1">
+              {counts.hackathons + counts.contests + counts.internships}+
+            </p>
+            <p className="text-gray-500 text-xs font-black uppercase tracking-[0.3em]">Total Opportunities</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          {tabsData.map((tab) => (
+            <TabCard
+              key={tab.id}
+              label={tab.label}
+              description={tab.description}
+              image={tab.image}
+              isActive={activeTab === tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+                handleEventNavigation(tab.eventType);
+              }}
+            />
+          ))}
+        </div>
       </section>
+
+      {/* 4. Live Statistics */}
+      <section className="bg-white/[0.03] border-y border-white/5 py-24">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-16">
+          <div className="text-center group">
+            <div className="w-20 h-20 bg-blue-600/10 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+              <Briefcase className="w-10 h-10 text-blue-500" />
+            </div>
+            <h4 className="text-5xl font-black mb-2 tracking-tighter italic">{counts.internships}</h4>
+            <p className="text-gray-500 font-black text-xs uppercase tracking-widest">Active Internships</p>
+          </div>
+          
+          <div className="text-center group md:border-x md:border-white/5">
+            <div className="w-20 h-20 bg-indigo-600/10 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+              <Zap className="w-10 h-10 text-indigo-500" />
+            </div>
+            <h4 className="text-5xl font-black mb-2 tracking-tighter italic">{counts.hackathons + counts.contests}</h4>
+            <p className="text-gray-500 font-black text-xs uppercase tracking-widest">Global Competitions</p>
+          </div>
+
+          <div className="text-center group">
+            <div className="w-20 h-20 bg-purple-600/10 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+              <Award className="w-10 h-10 text-purple-500" />
+            </div>
+            <h4 className="text-5xl font-black mb-2 tracking-tighter italic">{counts.festivals}</h4>
+            <p className="text-gray-500 font-black text-xs uppercase tracking-widest">Campus Festivals</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Error Toast */}
+      {error && (
+        <div className="fixed bottom-10 left-10 z-[200] flex items-center gap-3 bg-red-900/80 backdrop-blur-lg border border-red-500 p-4 rounded-2xl animate-pulse">
+          <AlertCircle className="text-white w-6 h-6" />
+          <p className="text-white font-bold text-sm">{error}</p>
+        </div>
+      )}
     </main>
   );
 };
 
 export default Home;
-export { logout };
