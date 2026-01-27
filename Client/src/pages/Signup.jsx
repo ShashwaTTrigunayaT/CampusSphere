@@ -55,7 +55,7 @@ const Signup = () => {
 
     return (
         // Reduced height to fit comfortably below the Nav
-        <main className="min-h-[calc(100vh-100px)] bg-[#050505] flex items-center justify-center p-4 font-sans">
+        <main className="min-h-[calc(100vh)] bg-[#050505] flex items-center justify-center p-4 font-sans">
             
             <div className="fixed top-20 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
                 <AnimatePresence mode="wait">
