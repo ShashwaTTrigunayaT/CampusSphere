@@ -121,10 +121,10 @@ const Home = () => {
   const crystalStyle = { clipPath: "polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%)" };
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white selection:bg-blue-500 selection:text-white scroll-smooth">
+    <main className="min-h-screen bg-[#050505] text-white selection:bg-blue-500 selection:text-white scroll-smooth ">
       
       {/* 1. Dynamic Navbar */}
-      <nav className={`fixed top-0 w-full z-[100] transition-all duration-500 ${isScrolled ? "bg-black/90 backdrop-blur-xl py-4 border-b border-white/5" : "bg-transparent py-8"}`}>
+      <nav className={`fixed top-0 w-full z-[100] transition-all duration-500 ${isScrolled ? "bg-black/90 backdrop-blur-xl  py-4 border-b border-white/5" : "bg-transparent py-8"}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           <div onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer group">
             <img src={logoImg} className="w-10 h-10 rounded-full border border-blue-500 group-hover:rotate-12 transition-transform" alt="Logo" />
@@ -158,7 +158,7 @@ const Home = () => {
         </div>
 
         <div className="relative z-10 max-w-6xl">
-          <div className="flex justify-center gap-3 mb-10 flex-wrap scale-90 md:scale-100">
+          <div className="flex justify-center gap-3 mb-10 mt-24 flex-wrap scale-90 md:scale-100">
             <FeaturePill icon={Zap} text="AI Smart Matcher" />
             <FeaturePill icon={Globe} text="Centralized Feed" />
             <FeaturePill icon={Award} text="Verified Badges" />
