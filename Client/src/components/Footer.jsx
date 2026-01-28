@@ -70,10 +70,7 @@ const Footer = () => {
               © 2026 CampusSphere. All Systems Operational.
             </p>
           </div>
-          <div className="flex gap-8">
-            <Link to="/privacy" className="text-[10px] font-bold text-gray-600 hover:text-blue-400 transition-colors uppercase tracking-widest">Privacy Policy</Link>
-            <Link to="/terms" className="text-[10px] font-bold text-gray-600 hover:text-blue-400 transition-colors uppercase tracking-widest">Terms of Use</Link>
-          </div>
+          
         </div>
       </div>
 

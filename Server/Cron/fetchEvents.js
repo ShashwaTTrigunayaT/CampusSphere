@@ -10,13 +10,11 @@ const fetchUnstopEvents = require("../service/unstopFetcher");
 const deleteOldEvents = require("../service/eventsManager");
 const { sendEmailAlerts } = require("../service/alerts");
 
-// --- SCHEDULE 1: Fetch Events (Runs every hour at minute 0) ---
-// Changed from */50 to 0 * * * * for consistency.
-cron.schedule("0 * * * *", async () => {
-    console.log("🔄 Starting event fetch cycle...");
 
-    // Using Promise.allSettled allows all fetchers to attempt execution
-    // even if one of them fails.
+cron.schedule("*/5 * * * *", async () => {
+    console.log(" Starting event fetch and cleanup cycle...");
+    
+   
     const results = await Promise.allSettled([
         fetchUnstopEvents(),
         fetchDevFolioEvents(),
@@ -27,7 +25,7 @@ cron.schedule("0 * * * *", async () => {
         fetchLeetcodeEvents()
     ]);
 
-    // Optional: Log failures for debugging
+    // Log failures (using your original style)
     results.forEach((result, index) => {
         if (result.status === 'rejected') {
             const services = ['Unstop', 'DevFolio', 'Codeforces', 'CodeChef', 'AtCoder', 'HackerRank', 'Leetcode'];
@@ -35,7 +33,17 @@ cron.schedule("0 * * * *", async () => {
         }
     });
 
-    console.log("✅ Fetch cycle completed.");
+    console.log("📥 Fetching completed. Starting cleanup...");
+
+    // 2. Delete wrong/old data immediately after fetching
+    try {
+        await deleteOldEvents();
+        console.log(" Cleanup complete.");
+    } catch (error) {
+        console.error(" Error deleting old events:", error);
+    }
+
+    console.log(" Cycle finished.");
 });
 
 // --- SCHEDULE 2: Send Alerts (Runs every 30 minutes) ---
@@ -45,18 +53,5 @@ cron.schedule("*/30 * * * *", async () => {
         await sendEmailAlerts();
     } catch (error) {
         console.error(" Error sending email alerts:", error);
-    }
-});
-
-// --- SCHEDULE 3: Cleanup (Runs once a day at midnight) ---
-// Cleaning up every hour is usually unnecessary and adds database load.
-// "0 0 * * *" runs at 00:00 every day.
-cron.schedule("0 0 * * *", async () => {
-    try {
-        console.log("🧹 Cleaning up old events...");
-        await deleteOldEvents();
-        console.log("✅ Cleanup complete.");
-    } catch (error) {
-        console.error(" Error deleting old events:", error);
     }
 });

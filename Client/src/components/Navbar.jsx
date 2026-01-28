@@ -86,7 +86,7 @@ const Navbar = () => {
         {/* DESKTOP NAVIGATION */}
         <div className="hidden md:flex items-center gap-8">
           <div className="flex items-center gap-8">
-            {['HOME', 'ABOUT', 'CONTACT'].map((item) => (
+            {['HOME', 'ABOUT', 'CONTACTS'].map((item) => (
               <Link 
                 key={item}
                 className="text-[10px] tracking-[0.3em] font-black text-gray-400 hover:text-white transition-all relative group" 
