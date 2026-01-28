@@ -211,7 +211,7 @@ const Profile = () => {
           {[
             { icon: <Bell className="text-blue-500" />, label: "Alerts", val: alerts?.length || 0, path: "/alerts" },
             { icon: <Bookmark className="text-purple-500" />, label: "Saved", val: bookmarks?.length || 0, path: "/bookmarks" },
-            { icon: <Calendar className="text-emerald-500" />, label: "Events", val: 0, path: "/upcoming" },
+            { icon: <Calendar className="text-emerald-500" />, label: "Events", val: 0, path: "/underconstruction" },
             { icon: <Github className="text-gray-400" />, label: "Git Repo", val: githubLink ? 1 : 0, path: githubLink }
           ].map((stat, i) => (
             <motion.div key={i} whileHover={{ y: -5 }} onClick={() => stat.path.startsWith('http') ? window.open(stat.path) : navigate(stat.path)} className="bg-white/[0.02] border border-white/5 p-6 rounded-3xl cursor-pointer hover:bg-white/[0.05] transition-all">

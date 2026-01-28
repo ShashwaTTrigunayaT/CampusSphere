@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import EventCard from "../components/EventCard";
-import { Bell, ShieldAlert, Loader2, Sparkles } from "lucide-react"; 
+import { Bell, ShieldCheck, Zap, Loader2, Radio } from "lucide-react"; 
+import { motion } from "framer-motion";
 
 const LoadingSpinner = () => (
-  <div className="flex flex-col items-center justify-center py-32">
-    <div className="relative">
-      <div className="absolute inset-0 bg-yellow-500 blur-2xl opacity-20 animate-pulse"></div>
-      <Loader2 className="relative w-12 h-12 animate-spin mb-4 text-yellow-500" />
-    </div>
-    <p className="text-gray-400 font-black tracking-[0.3em] text-[10px] uppercase animate-pulse">Scanning Satellite Feeds...</p>
+  <div className="flex flex-col items-center justify-center py-20 gap-4">
+    <Loader2 className="w-10 h-10 text-yellow-500 animate-spin" />
+    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-500/50">Interception in Progress...</p>
   </div>
 );
 
@@ -16,15 +14,15 @@ function Alerts() {
   const [alerts, setAlerts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState("Pilot");
 
   useEffect(() => {
     const email = localStorage.getItem("data.email");
     const token = localStorage.getItem("data.token");
-    setUserName(localStorage.getItem("data.name") || "User");
+    setUserName(localStorage.getItem("data.name") || "Pilot");
 
     if (!email || !token) {
-      setError("You must be logged in to see alerts.");
+      setError("Terminal Locked: Authentication Required.");
       setIsLoading(false);
       return;
     }
@@ -39,103 +37,83 @@ function Alerts() {
       },
     })
       .then((res) => {
-        if (!res.ok) {
-          setError("Failed to fetch alerts. Please try again later.");
-          throw new Error("Failed to fetch alerts. Please try again later.");
-        }
+        if (!res.ok) throw new Error("Signal Lost: Failed to fetch alerts.");
         return res.json();
       })
-      .then((data) => {
-        setAlerts(data.alerts || []);
-      })
-      .catch((error) => {
-        console.error("Error fetching alerts:", error);
-        setError(error.message || "An unknown error occurred.");
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      .then((data) => setAlerts(data.alerts || []))
+      .catch((err) => setError(err.message))
+      .finally(() => setIsLoading(false));
   }, []);
 
   const renderContent = () => {
     if (isLoading) return <LoadingSpinner />;
 
-    if (error) {
-      return (
-        <div className="flex justify-center py-20 animate-in zoom-in-95 duration-500">
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-8 py-6 rounded-[2rem] flex items-center gap-4 backdrop-blur-xl">
-            <ShieldAlert className="w-8 h-8" />
-            <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-widest text-red-500/50">Access Denied</span>
-              <span className="font-bold text-sm uppercase">{error}</span>
-            </div>
-          </div>
-        </div>
-      );
-    }
+    if (error) return (
+      <div className="max-w-md mx-auto bg-red-500/10 border border-red-500/20 p-6 rounded-3xl text-center">
+        <p className="text-xs font-black text-red-500 uppercase tracking-widest">{error}</p>
+      </div>
+    );
 
     if (alerts.length > 0) {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-items-center animate-in fade-in slide-in-from-bottom-10 duration-1000">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
           {alerts.map((alert) => (
-            <div key={alert._id} className="hover:-translate-y-2 transition-transform duration-500">
-              <EventCard {...alert} />
-            </div>
+            <EventCard key={alert._id} {...alert} />
           ))}
         </div>
       );
     }
 
     return (
-      <div className="text-center py-32 bg-white/[0.02] rounded-[3rem] border border-white/5 backdrop-blur-sm animate-in fade-in duration-700">
-        <div className="inline-block p-6 rounded-full bg-yellow-500/10 border border-yellow-500/20 mb-6">
-          <Bell size={40} className="text-yellow-500 opacity-50" />
-        </div>
-        <h3 className="text-2xl font-black text-white italic tracking-tighter uppercase">Signal Is Empty</h3>
-        <p className="text-gray-500 mt-2 max-w-xs mx-auto text-sm font-medium leading-relaxed italic">
-          No saved events found in your radar. Start exploring the sphere to trigger alerts.
-        </p>
+      <div className="text-center py-24 bg-white/5 border border-white/5 rounded-[3rem] backdrop-blur-sm">
+        <Radio className="mx-auto text-yellow-500/20 mb-4 animate-pulse" size={48} />
+        <p className="text-xs font-black text-gray-500 uppercase tracking-[0.2em]">No Incoming Signals</p>
       </div>
     );
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white overflow-hidden relative">
-      {/* Background Cinematic Glows */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-screen pointer-events-none -z-10">
-        <div className="absolute top-[-5%] right-[-5%] w-[45%] h-[45%] bg-yellow-600/5 blur-[120px] rounded-full"></div>
-        <div className="absolute bottom-[5%] left-[-5%] w-[40%] h-[40%] bg-blue-600/5 blur-[120px] rounded-full"></div>
-      </div>
+    <div className="min-h-screen bg-[#050505] text-white pt-32 pb-20 px-6 relative overflow-hidden">
+      
+      {/* Background Glows for Depth */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-500/5 blur-[120px] rounded-full pointer-events-none"></div>
 
-      <div className="max-w-7xl mx-auto px-6 py-20 mt-10 relative">
-        {/* Header Section */}
-        <div className="text-center mb-20">
-          <motion-div className="flex justify-center mb-6">
-            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 backdrop-blur-md">
-              <Bell className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500/20" />
-              <span className="text-[10px] font-black tracking-[0.3em] text-yellow-500 uppercase">Live Intercepts</span>
+      <div className="max-w-7xl mx-auto">
+        
+        {/* HEADER SECTION - Matches Bookmark Style */}
+        <div className="mb-16">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="px-3 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded-full flex items-center gap-2">
+              <Zap size={12} className="text-yellow-500 fill-yellow-500" />
+              <span className="text-[9px] font-black uppercase tracking-widest text-yellow-500">T-Minus Protocol Active</span>
             </div>
-          </motion-div>
+            <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full flex items-center gap-2">
+              <ShieldCheck size={10} className="text-blue-500" />
+              <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">Secure Intercept</span>
+            </div>
+          </div>
 
-          <h1 className="text-5xl md:text-6xl font-black tracking-tighter italic uppercase mb-4 leading-none">
-            <span className="text-gray-500 block text-2xl mb-2 not-italic tracking-widest">{userName}</span>
-            <span className="bg-gradient-to-b from-white to-gray-500 bg-clip-text text-transparent">
-              Your Alert Intel
+          <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none mb-6">
+            Active Alerts, <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-orange-400">
+              {userName}
             </span>
           </h1>
           
-          <div className="flex flex-col items-center gap-4">
-            <p className="text-gray-500 text-sm font-bold uppercase tracking-[0.1em] max-w-lg">
-              Synchronized events from your watch-list. Never miss a critical deadline.
-            </p>
-            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent rounded-full"></div>
-          </div>
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-[0.3em] max-w-xl leading-relaxed">
+            Synchronizing live event data. Your node is configured to transmit 
+            <span className="text-white italic underline ml-1">Automated Email Alerts</span> 120 minutes prior to event launch.
+          </p>
         </div>
 
-        {/* Dynamic Content */}
-        <div className="relative z-10">
+        {/* CONTENT AREA */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           {renderContent()}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

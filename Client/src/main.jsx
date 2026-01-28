@@ -15,6 +15,7 @@ import About from './pages/About.jsx'
 import Bookmarks from './pages/Bookmarks.jsx'
 import Alerts from './pages/Alerts.jsx'
 import EventDetailPage from './pages/EventDetailPage.jsx'
+import UnderConstruction from './pages/UnderConstruction.jsx'
 import Contacts from './pages/Contacts.jsx'
 import React from 'react'
 
@@ -32,6 +33,8 @@ const router = createBrowserRouter(
       <Route path='Bookmarks' element={<Bookmarks />} />
       <Route path='Alerts' element={<Alerts />} />
       <Route path='events/:id' element={<EventDetailPage  />} />
+      <Route path='underConstruction' element={<UnderConstruction  />} />
+
       
       </Route>
   )
