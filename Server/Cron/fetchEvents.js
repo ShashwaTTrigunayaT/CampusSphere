@@ -11,7 +11,7 @@ const deleteOldEvents = require("../service/eventsManager");
 const { sendEmailAlerts } = require("../service/alerts");
 
 
-cron.schedule("*/5 * * * *", async () => {
+cron.schedule("*/60 * * * *", async () => {
     console.log(" Starting event fetch and cleanup cycle...");
     
    
