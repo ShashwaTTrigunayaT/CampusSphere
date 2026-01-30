@@ -83,6 +83,14 @@ The academic ecosystem is currently fragmented. Students are forced to visit mul
 * **One-Click Calendar:** Generates `.ics` files using JavaScript Blobs for instant Google Calendar sync.
 * **Email Alerts:** Uses **Nodemailer** to send automated reminders 24 hours before registration deadlines.
 
+### 2. 🛡️ T-Minus Protocol (Proximity Alerts)
+* **Automation:** Uses **Nodemailer** to transmit secure terminal alerts exactly **120 minutes** (2 hours) before an event launch.
+* **Proactive Defense:** Specifically designed to ensure users have enough time for system setup and final checks before a contest begins.
+
+### 4. 📂 The Secure Vault (Bookmarks)
+* **Persistence:** One-click archival of events for future deployment.
+* **Data Sync:** Upon login, the system restores 11+ metadata points (Skills, Github, Institution) to ensure a fully authorized and personalized state.
+
 ---
 
 ## 🏗 System Architecture
