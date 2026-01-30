@@ -44,8 +44,8 @@
 
 Beyond simple aggregation, it introduces intelligent features like **AI-based Resume Matching** and **Automated Deadline Alerts**, ensuring students never miss an opportunity that matches their skill set.
 
-**Live Demo:** [Insert Link Here]  
-**Video Walkthrough:** [Insert Link Here]
+**Live Demo:** https://campus-sphere-beta.vercel.app/ 
+
 
 ---
 
