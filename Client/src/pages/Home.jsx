@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, Zap, Globe, Award, Briefcase, ArrowRight, Info, MessageCircle,Bell } from "lucide-react"; 
+import { AlertCircle, Zap, Globe, Award, Briefcase, ArrowRight, Info, MessageCircle,Bell,Bot } from "lucide-react"; 
 
 // Asset Imports (Ensure these paths are still correct)
 import hackathonImg from "../assets/images/hackathons.jpg";
@@ -163,6 +163,7 @@ const Home = () => {
             <FeaturePill icon={Globe} text="Centralized Feed" />
             <FeaturePill icon={Award} text="Verified Badges" />
             <FeaturePill icon={Bell} text="Ignition Alerts" />
+            <FeaturePill icon={Bot} text="AI Preparation Tool" />
           </div>
 
           <h1 className="text-6xl md:text-[100px] font-black mb-8 tracking-tighter leading-[0.9] uppercase italic">
