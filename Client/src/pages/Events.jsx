@@ -139,9 +139,9 @@ const Events = () => {
         {/* Main Content Area */}
         {isLoading ? renderLoading() : error ? renderError() : events.length === 0 ? renderEmpty() : (
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8  items-start justify-items-center">
               {events.map((event) => (
-                <div key={event._id} className="hover:-translate-y-2 transition-transform duration-500">
+                <div key={event._id} className="w-full h-full hover:-translate-y-2 transition-transform duration-500 flex justify-center">
                   <EventCard
                     eventId={event._id}
                     userSkills={userSkills}

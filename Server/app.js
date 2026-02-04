@@ -5,6 +5,7 @@ const userRoute=require("./router/userRoute")
 const cookieParser=require("cookie-parser");
 const fetchCodeforcesEvents=require("./service/codeforcesfetcher");
 const eventRoute=require("./router/eventRoute");
+const aiRoute=require("./router/aiRoute");
 const path=require("path");
 
 const { checkForAuth } = require("./middleware/auth");
@@ -48,6 +49,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(checkForAuth("token"));
 app.use("/user",userRoute);
 app.use("/event",eventRoute);
+app.use("/ai", aiRoute);   
 
 app.use('/api/match', require('./service/matchRoutes'));
 

@@ -1,19 +1,19 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AddToCalender from "./AddToCalender"; 
+import AddToCalender from "./AddToCalender";
+import AIPrepCard from "./AIPrepCard";
 import {
   Calendar,
   Clock,
   Globe,
-  CheckCircle,
-  XCircle,
   ArrowRight,
   Bell,
   Bookmark,
   Info,
   Zap,
-  Star
+  Star,
+  Bot
 } from "lucide-react";
 
 const EventCard = ({
@@ -34,15 +34,16 @@ const EventCard = ({
   userSkills = []
 }) => {
   const navigate = useNavigate();
-  
-  // --- 1. CORE LOGIC (Restored exactly from your working version) ---
+
+  // --- STATE ---
   const [imageSource, setImageSource] = useState(bannerURL || logoURL || null);
   const [active, setActive] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [alerted, setAlerted] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
   const [isAlerting, setIsAlerting] = useState(false);
-  
+  const [showAI, setShowAI] = useState(false);
+
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const platformColors = {
@@ -66,7 +67,7 @@ const EventCard = ({
           <Star size={10} fill="currentColor" /> 95% Match
         </div>
       );
-    } 
+    }
     if (matchCount >= 1) {
       return (
         <div className="absolute top-3 right-3 z-20 bg-[#1E3A8A] text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg flex items-center gap-1">
@@ -89,7 +90,6 @@ const EventCard = ({
     setImageSource(bannerURL || logoURL || null);
   }, [bannerURL, logoURL]);
 
-  // API Call logic kept identical to your original
   const handleBookmark = async () => {
     if (isBookmarking) return;
     setIsBookmarking(true);
@@ -100,7 +100,7 @@ const EventCard = ({
         body: JSON.stringify({ eventId, userId: localStorage.getItem("data.email") }),
       });
       if (res.ok) setBookmarked(prev => !prev);
-    } catch (err) { console.error(err); } 
+    } catch (err) { console.error(err); }
     finally { setIsBookmarking(false); }
   };
 
@@ -122,20 +122,20 @@ const EventCard = ({
     setActive(!!localStorage.getItem("data.token"));
   }, []);
 
-  // --- 2. RENDER (Cleaner, Stable Layout) ---
+  // --- RENDER ---
   return (
-    <div className="relative w-full max-w-sm bg-[#F6F1E7] rounded-3xl border-2 border-[#1E3A8A]/10 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group overflow-hidden">
-      
+    <div className={`relative w-full max-w-sm bg-[#F6F1E7] rounded-3xl border-2 border-[#1E3A8A]/10 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col group overflow-hidden h-fit ${showAI ? 'z-50' : 'z-0'}`}>
+
       {renderMatchBadge()}
 
       {/* Banner Section */}
       <div className="h-32 w-full overflow-hidden bg-white/50 border-b border-[#1E3A8A]/5">
         {imageSource ? (
-          <img 
-            src={imageSource} 
-            alt={title} 
-            className={`w-full h-full ${imageSource === logoURL ? "object-contain p-6" : "object-cover"}`} 
-            onError={handleImageError} 
+          <img
+            src={imageSource}
+            alt={title}
+            className={`w-full h-full ${imageSource === logoURL ? "object-contain p-6" : "object-cover"}`}
+            onError={handleImageError}
           />
         ) : (
           <div className={`w-full h-full bg-gradient-to-br ${platformColors[platform] || "from-gray-400 to-gray-600"}`} />
@@ -155,7 +155,7 @@ const EventCard = ({
         </div>
 
         {/* Title */}
-        <h2 
+        <h2
           className="text-base font-black italic uppercase text-[#1E3A8A] leading-tight mb-3 line-clamp-2 cursor-pointer hover:underline decoration-2"
           onClick={() => navigate(`/events/${eventId}`)}
         >
@@ -163,13 +163,13 @@ const EventCard = ({
         </h2>
 
         {/* Description */}
-        <div 
+        <div
           className="text-[12px] text-gray-600 line-clamp-2 mb-4 h-9 overflow-hidden opacity-80"
           dangerouslySetInnerHTML={{ __html: description && description !== "No Description" ? description : "No details provided." }}
         />
 
         {/* Details List */}
-        <div className="space-y-2 mb-5">
+        <div className="space-y-2 mb-6">
           <div className="flex items-center gap-2 text-[11px] font-bold text-[#1E3A8A]/70 uppercase">
             <Calendar size={14} /> {eventDate ? new Date(eventDate).toLocaleDateString() : "TBD"}
           </div>
@@ -181,29 +181,91 @@ const EventCard = ({
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="mt-auto pt-4 border-t border-[#1E3A8A]/10 flex items-center justify-between">
-          <div className="flex gap-1">
-            <button onClick={() => navigate(`/events/${eventId}`)} className="p-2 hover:bg-[#1E3A8A]/5 rounded-lg text-gray-400 hover:text-[#1E3A8A] transition-colors"><Info size={18} /></button>
+        {/* --- FOOTER SECTION --- */}
+        <div className="mt-auto pt-4 border-t border-[#1E3A8A]/10 flex flex-col">
+
+          {/* Row 1: Icons (Always Visible) */}
+          <div className="flex items-center justify-evenly w-full px-2">
+
+            {/* Info Icon */}
+            <button
+              onClick={() => navigate(`/events/${eventId}`)}
+              className="p-2 hover:bg-[#1E3A8A]/5 rounded-lg text-gray-400 hover:text-[#1E3A8A] transition-colors"
+              title="View Details"
+            >
+              <Info size={20} />
+            </button>
+
             {active && (
               <>
-                <button onClick={handleAlert} className="p-2 hover:bg-yellow-50 rounded-lg text-gray-400 transition-colors"><Bell size={18} className={alerted ? "fill-yellow-500 text-yellow-600 border-none" : ""} /></button>
-                <button onClick={handleBookmark} className="p-2 hover:bg-indigo-50 rounded-lg text-gray-400 transition-colors"><Bookmark size={18} className={bookmarked ? "fill-indigo-600 text-indigo-600 border-none" : ""} /></button>
-                <div className="scale-90"><AddToCalender title={title} eventType={type} eventDateTime={eventDate} eventDuration={duration} description={description?.replace(/<[^>]*>?/gm, '') || ""} /></div>
+                {/* Alert Icon */}
+                <button
+                  onClick={handleAlert}
+                  className="p-2 hover:bg-yellow-50 rounded-lg text-gray-400 transition-colors"
+                  title="Set Alert"
+                >
+                  <Bell size={20} className={alerted ? "fill-yellow-500 text-yellow-600 border-none" : ""} />
+                </button>
+
+                {/* Bookmark Icon */}
+                <button
+                  onClick={handleBookmark}
+                  className="p-2 hover:bg-indigo-50 rounded-lg text-gray-400 transition-colors"
+                  title="Bookmark"
+                >
+                  <Bookmark size={20} className={bookmarked ? "fill-indigo-600 text-indigo-600 border-none" : ""} />
+                </button>
+
+                {/* AI Strategy Toggle */}
+                <button
+                  onClick={() => setShowAI(!showAI)}
+                  className={`p-2 rounded-lg transition-all duration-300 ${showAI ? "bg-purple-600 text-white shadow-lg scale-110" : "hover:bg-purple-100 text-gray-400 hover:text-purple-600"}`}
+                  title="Generate Winning Strategy"
+                >
+                  <Bot size={20} />
+                </button>
+
+                {/* Calendar Icon */}
+                <div className="scale-100">
+                  <AddToCalender
+                    title={title}
+                    eventType={type}
+                    eventDateTime={eventDate}
+                    eventDuration={duration}
+                    description={description?.replace(/<[^>]*>?/gm, '') || ""}
+                  />
+                </div>
               </>
             )}
           </div>
-          
-          <a
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 bg-[#1E3A8A] text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-800 transition-all shadow-md active:scale-95"
-          >
-            Enter <ArrowRight size={12} />
-          </a>
+
+          {/* Row 2: Enter Button (Reveals on Hover) */}
+          {/* ✅ The outer div handles the slide animation */}
+          <div className="max-h-0 opacity-0 overflow-hidden group-hover:max-h-16 group-hover:opacity-100 transition-all duration-500 ease-in-out">
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 bg-[#1E3A8A] text-white py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-800 transition-all shadow-md active:scale-95 mt-4"
+            >
+              Enter Challenge <ArrowRight size={14} />
+            </a>
+          </div>
+
         </div>
       </div>
+
+      {/* AI Expandable Section */}
+      
+      {showAI && (
+        <div className="animate-in slide-in-from-top-5 duration-300 w-full">
+          <AIPrepCard
+            event={{ title, description }}
+            user={{ skills: userSkills }}
+          />
+        </div>
+      )}
+
     </div>
   );
 };
