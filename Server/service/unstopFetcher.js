@@ -43,7 +43,7 @@ async function fetchUnstopInternships() {
     let keepFetching = true;
     let totalFetched = 0;
     const perPage = 10;
-    const maxPages = 50;
+    const maxPages = 150;
 
     while (keepFetching && page <= maxPages) {
       const API_URL = `https://unstop.com/api/public/opportunity/search-result?opportunity=internships&page=${page}&per_page=${perPage}&oppstatus=open`;
