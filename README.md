@@ -1,9 +1,9 @@
-# 🌐 CampusSphere: The Centralized Academic Event Aggregator
+# CampusSphere: The Centralized Academic Event Aggregator
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/Status-Live-brightgreen)
-![Users](https://img.shields.io/badge/Active%20Users-50%2B-orange)
+![AI](https://img.shields.io/badge/Powered%20By-Groq-orange)
 
 > **Eliminating information fragmentation for student developers by aggregating Hackathons, Internships, and Contests into a single, intelligent dashboard.**
 
@@ -21,7 +21,8 @@
 ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
 ![Nodemailer](https://img.shields.io/badge/Nodemailer-SMTP-green?style=for-the-badge)
 
-**Database:** ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
+**AI & Database:** ![Groq](https://img.shields.io/badge/Groq-LPU%20Inference-orange?style=for-the-badge)
+![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
 ![Mongoose](https://img.shields.io/badge/Mongoose-ODM-red?style=for-the-badge)
 
 ---
@@ -31,9 +32,7 @@
 - [The Problem](#-the-problem)
 - [Key Features](#-key-features)
 - [System Architecture](#-system-architecture)
-- [Getting Started](#-getting-started)
 - [Environment Variables](#-environment-variables)
-- [Project Structure](#-project-structure)
 - [Contact](#-contact)
 
 ---
@@ -42,10 +41,9 @@
 
 **CampusSphere** is a full-stack web application designed to streamline the academic opportunity search. It serves as a unified dashboard that aggregates **Hackathons, Internships, Workshops, and Coding Contests** from various disparate platforms into a single, real-time feed.
 
-Beyond simple aggregation, it introduces intelligent features like **AI-based Resume Matching** and **Automated Deadline Alerts**, ensuring students never miss an opportunity that matches their skill set.
+Beyond simple aggregation, it introduces intelligent features like **AI-Generated Winning Strategies**, **Resume Matching**, and **Automated Deadline Alerts**, ensuring students never miss an opportunity that matches their skill set.
 
-**Live Demo:** https://campus-sphere-beta.vercel.app/ 
-
+**Live Demo:** https://campus-sphere-beta.vercel.app/
 
 ---
 
@@ -66,30 +64,27 @@ The academic ecosystem is currently fragmented. Students are forced to visit mul
 
 ## ✨ Key Features
 
-### 1. 🔍 Global Search Engine (Regex + Debounce)
+### 1. 🧠 CampusSphere AI (Strategy Engine)
+* **Powered by Groq:** Leverages high-speed LLM inference to analyze opportunities in real-time.
+* **Gap Analysis:** The AI compares the specific requirements of an event (e.g., "AI Hackathon looking for GenAI solutions") against the user's parsed resume skills.
+* **Actionable Roadmaps:** Generates a personalized, step-by-step preparation strategy (e.g., "Learn LangChain in 3 days," "Focus on these specific LeetCode patterns") to help the user win.
+
+### 2. 🔍 Global Search Engine (Regex + Debounce)
 * **Unified Search:** Perform partial string matching across Event Titles, Locations, and Tags simultaneously.
 * **Performance:** Implements a **Debounce mechanism (500ms)** to prevent API flooding and reduce server load by ~90% during typing.
 
-### 2. 📄 The "Smart Matcher" (Resume Parsing)
+### 3. 📄 The "Smart Matcher" (Resume Parsing)
 * **Input:** Users upload their resume (PDF).
 * **Processing:** The backend parses text using `pdf-parse` to extract technical keywords (e.g., "React", "Python", "ML").
 * **Matching:** Calculates a **"Match Score"** against active event tags to prioritize the most relevant opportunities for that specific user.
 
-### 3. 🤖 Automated Data Normalization
-* **Custom Fetchers:** Backend services aggregate and normalize incoming data from external sources into a standard schema (converting various formats to ISO 8601).
-* **Consistency:** Ensures a global coding contest looks consistent next to a university hackathon card.
-
-### 4. 📅 Productivity Tools
-* **One-Click Calendar:** Generates `.ics` files using JavaScript Blobs for instant Google Calendar sync.
-* **Email Alerts:** Uses **Nodemailer** to send automated reminders 24 hours before registration deadlines.
-
-### 2. 🛡️ T-Minus Protocol (Proximity Alerts)
-* **Automation:** Uses **Nodemailer** to transmit secure terminal alerts exactly **120 minutes** (2 hours) before an event launch.
+### 4. 🛡️ T-Minus Protocol (Proximity Alerts)
+* **Automation:** Uses **Nodemailer** to transmit secure email alerts exactly **24 hours** and **120 minutes** before an event launch.
 * **Proactive Defense:** Specifically designed to ensure users have enough time for system setup and final checks before a contest begins.
 
-### 4. 📂 The Secure Vault (Bookmarks)
+### 5. 📂 The Secure Vault (Bookmarks & Calendar)
 * **Persistence:** One-click archival of events for future deployment.
-* **Data Sync:** Upon login, the system restores 11+ metadata points (Skills, Github, Institution) to ensure a fully authorized and personalized state.
+* **One-Click Calendar:** Generates `.ics` files using JavaScript Blobs for instant Google Calendar sync.
 
 ---
 
