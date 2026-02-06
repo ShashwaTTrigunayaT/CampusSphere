@@ -128,7 +128,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           <div onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer group">
             <img src={logoImg} className="w-10 h-10 rounded-full border border-blue-500 group-hover:rotate-12 transition-transform" alt="Logo" />
-            <span className="font-black tracking-tighter text-2xl uppercase italic group-hover:text-blue-400 transition-colors">CampusSphere</span>
+            <span className="font-black tracking-tighter text-2xl uppercase italic group-hover:text-blue-400 transition-colors whitespace-nowrap">CampusSphere</span>
           </div>
           
           <div className="flex items-center gap-4">
@@ -138,7 +138,7 @@ const Home = () => {
                 <span className="text-sm font-bold hidden md:block">{name}</span>
               </div>
             ) : (
-              <button onClick={() => navigate("/Signin")} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-bold text-sm transition-all shadow-lg shadow-blue-600/20">
+              <button onClick={() => navigate("/Signin")} className="bg-blue-600 hover:bg-blue-700  text-white px-6 py-2 rounded-full font-bold text-sm transition-all shadow-lg shadow-blue-600/20">
                 Launch
               </button>
             )}
