@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, Zap, Globe, Award, Briefcase, ArrowRight, Info, MessageCircle,Bell,Bot } from "lucide-react"; 
+import { AlertCircle, Zap, Globe, Award, Briefcase, ArrowRight, Info, MessageCircle, Bell, Bot } from "lucide-react";
 
 // Asset Imports (Ensure these paths are still correct)
 import hackathonImg from "../assets/images/hackathons.jpg";
 import contestImg from "../assets/images/contest.webp";
 import internshipImg from "../assets/images/internship.avif";
 import festivalsImg from "../assets/images/festivals.jpg";
-import logoImg from "/logo.png"; 
-import dashboardBgImg from "/dashboard-BG.jpg"; 
-import defaultAvatarImg from "/default-Avatar.png"; 
+import logoImg from "/logo.png";
+import dashboardBgImg from "/dashboard-BG.jpg";
+import defaultAvatarImg from "/default-Avatar.png";
 
 // Keep logout external for reuse
 const logout = (setUserActivation, navigate) => {
@@ -33,13 +33,13 @@ const TabCard = ({ label, image, description, isActive, onClick }) => (
     className={`
       group relative flex flex-col justify-end w-full h-[350px] p-8 rounded-[2.5rem] cursor-pointer
       transition-all duration-500 ease-out transform hover:-translate-y-3
-      ${isActive 
-        ? "ring-4 ring-blue-600 shadow-[0_20px_60px_rgba(30,58,138,0.5)] scale-[1.02]" 
+      ${isActive
+        ? "ring-4 ring-blue-600 shadow-[0_20px_60px_rgba(30,58,138,0.5)] scale-[1.02]"
         : "border border-white/10 hover:border-blue-500/50"}
       overflow-hidden
     `}
   >
-    <div 
+    <div
       className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
       style={{ backgroundImage: `url(${image})` }}
     />
@@ -122,34 +122,36 @@ const Home = () => {
 
   return (
     <main className="min-h-screen bg-[#050505] text-white selection:bg-blue-500 selection:text-white scroll-smooth ">
-      
+
       {/* 1. Dynamic Navbar */}
       <nav className={`fixed top-0 w-full z-[100] transition-all duration-500 ${isScrolled ? "bg-black/90 backdrop-blur-xl  py-4 border-b border-white/5" : "bg-transparent py-8"}`}>
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           <div onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer group">
             <img src={logoImg} className="w-10 h-10 rounded-full border border-blue-500 group-hover:rotate-12 transition-transform" alt="Logo" />
-            <span className="font-black tracking-tighter text-2xl uppercase italic group-hover:text-blue-400 transition-colors whitespace-nowrap">CampusSphere</span>
+            <span className="font-black tracking-tighter text-base sm:text-lg md:text-2xl uppercase italic whitespace-nowrap">
+              CampusSphere
+            </span>
           </div>
-          
-          <div className="flex items-center gap-4">
-            {UserActivation ? (
-              <div onClick={() => navigate("/profile")} className="flex items-center gap-3 bg-white/5 p-1 pr-4 rounded-full border border-white/10 hover:border-blue-500 transition-all cursor-pointer">
-                <img src={profileImage} className="w-9 h-9 rounded-full object-cover border border-blue-500" alt="User" />
-                <span className="text-sm font-bold hidden md:block">{name}</span>
-              </div>
-            ) : (
-              <button onClick={() => navigate("/Signin")} className="bg-blue-600 hover:bg-blue-700  text-white px-6 py-2 rounded-full font-bold text-sm transition-all shadow-lg shadow-blue-600/20">
-                Launch
-              </button>
-            )}
+
+            <div className="flex items-center gap-4">
+              {UserActivation ? (
+                <div onClick={() => navigate("/profile")} className="flex items-center gap-3 bg-white/5 p-1 pr-4 rounded-full border border-white/10 hover:border-blue-500 transition-all cursor-pointer">
+                  <img src={profileImage} className="w-9 h-9 rounded-full object-cover border border-blue-500" alt="User" />
+                  <span className="text-sm font-bold hidden md:block">{name}</span>
+                </div>
+              ) : (
+                <button onClick={() => navigate("/Signin")} className="bg-blue-600 hover:bg-blue-700  text-white px-6 py-2 rounded-full font-bold text-sm transition-all shadow-lg shadow-blue-600/20">
+                  Launch
+                </button>
+              )}
+            </div>
           </div>
-        </div>
       </nav>
 
       {/* 2. Cinematic Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <div 
+          <div
             className="absolute inset-0 opacity-20 bg-fixed"
             style={{ backgroundImage: `url(${dashboardBgImg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
           ></div>
@@ -174,9 +176,9 @@ const Home = () => {
           </h1>
 
           <p className="text-gray-400 text-lg md:text-2xl max-w-3xl mx-auto mb-12 font-medium leading-relaxed">
-            Eliminating fragmentation for developers. Aggregate 
-            <span className="text-white italic"> Hackathons</span>, 
-            <span className="text-white italic"> Internships</span>, and 
+            Eliminating fragmentation for developers. Aggregate
+            <span className="text-white italic"> Hackathons</span>,
+            <span className="text-white italic"> Internships</span>, and
             <span className="text-white italic"> Contests</span> into a single intelligent dashboard.
           </p>
 
@@ -264,7 +266,7 @@ const Home = () => {
             <h4 className="text-5xl font-black mb-2 tracking-tighter italic">{counts.internships}</h4>
             <p className="text-gray-500 font-black text-xs uppercase tracking-widest">Active Internships</p>
           </div>
-          
+
           <div className="text-center group md:border-x md:border-white/5">
             <div className="w-20 h-20 bg-indigo-600/10 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
               <Zap className="w-10 h-10 text-indigo-500" />
