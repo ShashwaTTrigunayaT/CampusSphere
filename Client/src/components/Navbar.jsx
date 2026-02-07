@@ -13,7 +13,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+  const ADMIN_EMAIL = "shashwattrigunayat04@gmail.com"; // Should ideally be in .env
 
   const [isFounder, setIsFounder] = useState(false);
 

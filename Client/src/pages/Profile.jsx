@@ -60,8 +60,8 @@ const Profile = () => {
   const [bookmarks, setBookmarks] = useState(eventData.bookmarks || []);
 
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-  const CREATOR_NAME = import.meta.env.VITE_CREATOR_NAME;
-  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+  const CREATOR_NAME = "Shashwat Trigunayat";
+  const ADMIN_EMAIL = "shashwattrigunayat04@gmail.com";
 
 
 
