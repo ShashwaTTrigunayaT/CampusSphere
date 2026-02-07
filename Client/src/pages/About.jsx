@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Target, Zap, Heart, Sparkles } from 'lucide-react';
+import { Target, Zap, Shield, Sparkles, Cpu, Bell } from 'lucide-react';
 
 const About = () => {
   return (
@@ -19,7 +19,7 @@ const About = () => {
         className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 backdrop-blur-md mb-8"
       >
         <Sparkles className="w-3.5 h-3.5 text-blue-500" />
-        <span className="text-[10px] font-black tracking-[0.3em] text-blue-400 uppercase">The Ecosystem</span>
+        <span className="text-[10px] font-black tracking-[0.3em] text-blue-400 uppercase">The AI Ecosystem</span>
       </motion.div>
         
       {/* Heading */}
@@ -39,28 +39,26 @@ const About = () => {
         transition={{ delay: 0.3, duration: 1 }}
         className="text-lg md:text-xl text-gray-400 max-w-3xl text-center leading-relaxed mb-20 font-medium italic"
       >
-        A centralized high-performance hub uniting hackathons, coding contests, 
-        and internships from the world's leading platforms. We don't just find events; 
-        we architect the bridge between student potential and professional reality.
+        Not just a dashboard, but a **Command Center**. CampusSphere leverages Ultra-Low Latency AI to bridge the gap between global opportunities and student readiness. 
       </motion.p>
 
       {/* Cards Section */}
       <div className="grid md:grid-cols-3 gap-8 max-w-7xl w-full">
         {[
           {
-            title: "Our Mission",
+            title: "Blueprint Engine",
+            icon: <Cpu className="w-6 h-6 text-blue-500" />,
+            desc: "Powered by CampusSphere AI via Groq Cloud. Generates personalized day-by-day contest prep strategies in under 1.8 seconds—turning overwhelming deadlines into actionable roadmaps.",
+          },
+          {
+            title: "Semantic Match",
             icon: <Target className="w-6 h-6 text-blue-500" />,
-            desc: "To simplify how students discover elite opportunities while empowering them to dominate in the tech landscape.",
+            desc: "Our PDF parsing layer extracts technical DNA from your resume to calculate a real-time 'Opportunity Match Score,' ensuring you focus on contests where you have the highest probability of winning.",
           },
           {
-            title: "The Tech",
-            icon: <Zap className="w-6 h-6 text-blue-500" />,
-            desc: "Advanced event aggregation, real-time filtering, and resume-skill matching—all built for peak performance.",
-          },
-          {
-            title: "For Students",
-            icon: <Heart className="w-6 h-6 text-blue-500" />,
-            desc: "Built by developers, for developers. A modern, aggressive tool designed to enhance your professional journey.",
+            title: "T-Minus Protocol",
+            icon: <Bell className="w-6 h-6 text-blue-500" />,
+            desc: "Zero-drift automated alert system. Synchronizes with your identity layer to provide instant email and app briefings 120 minutes before a global event launches.",
           },
         ].map((card, i) => (
           <motion.div
@@ -84,6 +82,8 @@ const About = () => {
           </motion.div>
         ))}
       </div>
+
+      
     </main>
   );
 };

@@ -6,6 +6,7 @@ import {
   AlertCircle, Sparkles, User, ShieldCheck, ExternalLink
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import FounderCard from "../components/FounderCard";
 
 const LoadingSpinner = ({ text }) => (
   <div className="flex flex-col justify-center items-center h-64 space-y-4">
@@ -31,14 +32,19 @@ const Profile = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
 
-  const [isLoadingData, setIsLoadingData] = useState(true); 
-  const [isSaving, setIsSaving] = useState(false); 
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [dataVersion, setDataVersion] = useState(0); 
+  const [dataVersion, setDataVersion] = useState(0);
 
   // State initialization from localStorage
+  const [isFounder, setIsFounder] = useState(false);
   const [username, setUsername] = useState(localStorage.getItem("data.username") || "Unknown");
-  const [name] = useState(localStorage.getItem("data.name") || "Pilot");
+  const [name, setName] = useState(
+    localStorage.getItem("data.name") || "Pilot"
+  );
+
+
   const [email] = useState(localStorage.getItem("data.email") || "Classified");
   const [institution, setInstitution] = useState(localStorage.getItem("data.institution") || "Unknown Entity");
   const [profileImageURL, setProfileImageURL] = useState(localStorage.getItem("data.profileImageURL") || "/default-profile.png");
@@ -48,11 +54,16 @@ const Profile = () => {
   const [githubLink, setGithubLink] = useState(localStorage.getItem("data.github") || "");
   const [linkedinLink, setLinkedinLink] = useState(localStorage.getItem("data.linkedin") || "");
 
+
   const eventData = JSON.parse(localStorage.getItem("data.eventData") || "{}");
   const [alerts, setAlerts] = useState(eventData.alerts || []);
   const [bookmarks, setBookmarks] = useState(eventData.bookmarks || []);
 
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const CREATOR_NAME = import.meta.env.VITE_CREATOR_NAME;
+  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+
+
 
   // Data Fetching logic (Kept intact)
   useEffect(() => {
@@ -68,34 +79,41 @@ const Profile = () => {
   useEffect(() => {
     const token = localStorage.getItem("data.token");
     const email = localStorage.getItem("data.email");
+
+    if (email === ADMIN_EMAIL) {
+      setIsFounder(true);
+      setName(CREATOR_NAME);
+    }
+
+
     if (token && email) {
       setIsLoadingData(true);
       fetch(`${API_URL}/user/update-profile/${email}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          const profileData = data.data;
-          // LocalStorage Sync
-          Object.keys(profileData).forEach(key => {
-            if (typeof profileData[key] === 'string') localStorage.setItem(`data.${key}`, profileData[key]);
-          });
-          // State Sync
-          setUsername(profileData.username || "");
-          setInstitution(profileData.institution || "");
-          setAboutMe(profileData.aboutSelf || "");
-          setGithubLink(profileData.githubURL || "");
-          setLinkedinLink(profileData.linkedinURL || "");
-          setProjects(profileData.projects || "");
-          setSkills(profileData.skills || "");
-          setProfileImageURL(profileData.profileImageURL || "/default-profile.png");
-          setAlerts(profileData.eventData?.alerts || []);
-          setBookmarks(profileData.eventData?.bookmarks || []);
-        }
-      })
-      .catch(err => setError(err.message))
-      .finally(() => setIsLoadingData(false));
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            const profileData = data.data;
+            // LocalStorage Sync
+            Object.keys(profileData).forEach(key => {
+              if (typeof profileData[key] === 'string') localStorage.setItem(`data.${key}`, profileData[key]);
+            });
+            // State Sync
+            setUsername(profileData.username || "");
+            setInstitution(profileData.institution || "");
+            setAboutMe(profileData.aboutSelf || "");
+            setGithubLink(profileData.githubURL || "");
+            setLinkedinLink(profileData.linkedinURL || "");
+            setProjects(profileData.projects || "");
+            setSkills(profileData.skills || "");
+            setProfileImageURL(profileData.profileImageURL || "/default-profile.png");
+            setAlerts(profileData.eventData?.alerts || []);
+            setBookmarks(profileData.eventData?.bookmarks || []);
+          }
+        })
+        .catch(err => setError(err.message))
+        .finally(() => setIsLoadingData(false));
     }
   }, [dataVersion, API_URL]);
 
@@ -137,6 +155,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white pb-20 selection:bg-blue-500/30 font-sans">
+
       {/* Dynamic Background */}
       <div className="fixed inset-0 pointer-events-none -z-10">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-b from-blue-900/5 to-transparent"></div>
@@ -159,7 +178,12 @@ const Profile = () => {
         >
           {/* Image Handler */}
           <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-[2rem] blur opacity-25 group-hover:opacity-60 transition duration-500"></div>
+            <div className={`absolute -inset-1 rounded-[2rem] blur opacity-25 group-hover:opacity-60 transition duration-500 ${isFounder
+                ? "bg-gradient-to-tr from-yellow-400 via-amber-500 to-yellow-600"
+                : "bg-gradient-to-tr from-blue-500 to-purple-600"
+              }`}>
+
+            </div>
             <div className="relative w-40 h-40 rounded-[2rem] overflow-hidden border border-white/10 bg-black">
               <img src={imagePreview || profileImageURL} alt="Profile" className="w-full h-full object-cover" />
               {edit && (
@@ -175,11 +199,22 @@ const Profile = () => {
             <div>
               <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
                 <ShieldCheck className="w-4 h-4 text-blue-500" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500">Verified Pilot</span>
+                <span className={`text-[10px] font-black uppercase tracking-[0.3em] px-3 py-1 rounded-full border ${isFounder
+                  ? "text-yellow-300 bg-yellow-500/10 border-yellow-500/30 shadow-[0_0_20px_rgba(234,179,8,0.35)]"
+                  : "text-blue-500"
+                  }`}>
+
+
+                  {isFounder ? "System Founder" : "Verified Pilot"}
+                </span>
+
               </div>
-              <h1 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
-                {name}
-              </h1>
+              <h1 className={`text-4xl md:text-5xl font-black italic uppercase tracking-tighter bg-clip-text text-transparent ${isFounder
+                  ? "bg-gradient-to-r from-yellow-200 via-amber-400 to-yellow-500 drop-shadow-[0_0_25px_rgba(234,179,8,0.35)]"
+                  : "bg-gradient-to-r from-white to-gray-500"
+                }`}>
+
+                {name}  </h1>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -269,6 +304,9 @@ const Profile = () => {
             </div>
           </div>
         </div>
+        {/* Founder Identity Card */}
+
+
       </main>
     </div>
   );

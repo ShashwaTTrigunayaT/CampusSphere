@@ -2,30 +2,30 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, Menu, X, ShieldCheck } from 'lucide-react';
 
-// Make sure these paths match your project structure
 import logoImg from "/logo.png"; 
 import defaultAvatarImg from "/default-Avatar.png";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [active, setActive] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
-  // --- 🧠 SMART NAME SYNC ---
+
+  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+
+  const [isFounder, setIsFounder] = useState(false);
+
   const [userData, setUserData] = useState({
     name: "Explorer",
     image: defaultAvatarImg
   });
 
   useEffect(() => {
-    // 1. Check Auth Token
     const token = localStorage.getItem("data.token") || localStorage.getItem("token");
     setActive(!!token);
 
-    // 2. Comprehensive Name Check
-    // We check common keys: data.name, user.name, name, or a nested object
     const rawData = localStorage.getItem("data");
     let detectedName = "Explorer";
     let detectedImage = defaultAvatarImg;
@@ -36,16 +36,30 @@ const Navbar = () => {
         detectedName = parsed.name || parsed.username || detectedName;
         detectedImage = parsed.profileImageURL || parsed.image || detectedImage;
       } else {
-        detectedName = localStorage.getItem("data.name") || localStorage.getItem("name") || "Explorer";
-        detectedImage = localStorage.getItem("data.profileImageURL") || localStorage.getItem("profileImage") || defaultAvatarImg;
+        detectedName =
+          localStorage.getItem("data.name") ||
+          localStorage.getItem("name") ||
+          "Explorer";
+
+        detectedImage =
+          localStorage.getItem("data.profileImageURL") ||
+          localStorage.getItem("profileImage") ||
+          defaultAvatarImg;
       }
     } catch (e) {
       console.error("Auth parse error");
     }
 
+    const storedEmail = localStorage.getItem("data.email");
+
+    if (storedEmail?.toLowerCase() === ADMIN_EMAIL?.toLowerCase()) {
+      setIsFounder(true);
+    } else {
+      setIsFounder(false);
+    }
+
     setUserData({ name: detectedName, image: detectedImage });
 
-    // 3. Scroll Listener
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -102,24 +116,45 @@ const Navbar = () => {
 
           {active ? (
             <div className="flex items-center gap-4">
-              <Link to="/profile" className="flex items-center gap-3 bg-white/5 border border-white/10 p-1.5 pr-5 rounded-2xl hover:border-blue-500/50 hover:bg-white/10 transition-all group/profile">
+              <Link
+                to="/profile"
+                className="flex items-center gap-3 bg-white/5 border border-white/10 p-1.5 pr-5 rounded-2xl hover:border-blue-500/50 hover:bg-white/10 transition-all group/profile"
+              >
                 <div className="relative">
                   <img 
                     src={userData.image} 
-                    className="w-9 h-9 rounded-xl object-cover border border-white/10 group-hover/profile:border-blue-500 transition-colors" 
-                    alt="Profile" 
+                    className={`w-9 h-9 rounded-xl object-cover border transition-colors ${
+                      isFounder
+                        ? "border-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)]"
+                        : "border-white/10 group-hover/profile:border-blue-500"
+                    }`}
+                    alt="Profile"
                   />
-                  <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-0.5 border-2 border-black">
+
+                  <div className={`absolute -bottom-1 -right-1 rounded-full p-0.5 border-2 border-black ${
+                    isFounder ? "bg-yellow-500" : "bg-blue-500"
+                  }`}>
                     <ShieldCheck size={8} className="text-white" />
                   </div>
                 </div>
+
                 <div className="flex flex-col">
-                  <span className="text-[9px] text-blue-500 font-black tracking-widest leading-none">PILOT</span>
-                  <span className="text-sm font-black text-white leading-none mt-1 uppercase italic tracking-tighter">
+                  <span className={`text-[9px] font-black tracking-widest leading-none ${
+                    isFounder ? "text-yellow-400" : "text-blue-500"
+                  }`}>
+                    {isFounder ? "FOUNDER" : "PILOT"}
+                  </span>
+
+                  <span className={`text-sm font-black leading-none mt-1 uppercase italic tracking-tighter ${
+                    isFounder
+                      ? "bg-gradient-to-r from-yellow-200 via-amber-400 to-yellow-500 bg-clip-text text-transparent"
+                      : "text-white"
+                  }`}>
                     {userData.name}
                   </span>
                 </div>
               </Link>
+
               <button 
                 onClick={logout} 
                 className="flex items-center justify-center w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all"
@@ -147,22 +182,27 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* MOBILE MENU OVERLAY */}
       {mobileMenuOpen && (
         <div className="absolute top-full left-0 right-0 mt-4 mx-4 bg-black/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-10 flex flex-col gap-8 md:hidden shadow-2xl animate-in slide-in-from-top-5">
-           <div className="flex flex-col gap-4">
-             {['HOME', 'ABOUT', 'CONTACT'].map((item) => (
-                <Link key={item} className="text-4xl font-black italic tracking-tighter text-white/40 hover:text-blue-500 transition-colors" to={item === 'HOME' ? '/' : `/${item.toLowerCase()}`}>
-                  {item}
-                </Link>
-             ))}
-           </div>
-          
+          <div className="flex flex-col gap-4">
+            {['HOME', 'ABOUT', 'CONTACT'].map((item) => (
+              <Link key={item} className="text-4xl font-black italic tracking-tighter text-white/40 hover:text-blue-500 transition-colors" to={item === 'HOME' ? '/' : `/${item.toLowerCase()}`}>
+                {item}
+              </Link>
+            ))}
+          </div>
+
           <div className="h-[1px] bg-white/10 w-full" />
-          
+
           {active ? (
             <div className="flex flex-col gap-6">
-              <Link to="/profile" className="text-4xl font-black italic tracking-tighter text-blue-500 uppercase">{userData.name}</Link>
+              <Link to="/profile" className={`text-4xl font-black italic tracking-tighter uppercase ${
+                isFounder
+                  ? "bg-gradient-to-r from-yellow-200 via-amber-400 to-yellow-500 bg-clip-text text-transparent"
+                  : "text-blue-500"
+              }`}>
+                {userData.name}
+              </Link>
               <button onClick={logout} className="text-left text-red-500 text-xl font-black tracking-widest">LOGOUT</button>
             </div>
           ) : (
@@ -173,7 +213,7 @@ const Navbar = () => {
           )}
         </div>
       )}
-    </nav> 
+    </nav>
   );
 };
 
