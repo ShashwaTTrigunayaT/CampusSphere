@@ -6,6 +6,8 @@ const AIPrepCard = ({ event, user }) => {
   const [strategy, setStrategy] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  
+ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   // ⚡ The Action
   const generateStrategy = async () => {
@@ -13,8 +15,8 @@ const AIPrepCard = ({ event, user }) => {
     setError(false);
 
     try {
-      const response = await fetch('http://localhost:5000/ai/generate-strategy', {
-        method: 'POST',
+        const response = await fetch(`${API_URL}/ai/generate-strategy`, {
+          method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           eventTitle: event.title,
